@@ -1,14 +1,17 @@
 package main
 
 import (
-	"fmt"
 	"log"
 	"os"
 
+	tea "github.com/charmbracelet/bubbletea"
 	"github.com/khatibomar/tkanna/config"
+	"github.com/khatibomar/tkanna/internal/components/browser"
 )
 
 func main() {
+	infoLogger := log.New(os.Stdout, "Info : ", log.Ldate|log.Ltime)
+	errLogger := log.New(os.Stderr, "Error : ", log.Ldate|log.Ltime)
 	f, err := os.Open(".ENV.toml")
 	if err != nil {
 		log.Fatalln(err)
@@ -17,5 +20,11 @@ func main() {
 	if err != nil {
 		log.Fatalln(err)
 	}
-	fmt.Println(c)
+	infoLogger.Println("starting app...")
+	var browserModel tea.Model
+	browserModel, err = browser.InitialModel(c)
+	p := tea.NewProgram(browserModel)
+	if err := p.Start(); err != nil {
+		errLogger.Fatalln(err)
+	}
 }
