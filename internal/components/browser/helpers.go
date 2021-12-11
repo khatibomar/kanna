@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"io/ioutil"
 	"net/http"
+	"time"
 
 	"github.com/khatibomar/tkanna/config"
 )
@@ -14,7 +15,7 @@ func getAnimeData(cfg *config.Config, offset, limit int) ([]Anime, error) {
 	url := fmt.Sprintf(LATEST_EPISODES_URL, offset, limit)
 	method := "GET"
 
-	client := &http.Client{}
+	client := &http.Client{Timeout: 10 * time.Second}
 	req, err := http.NewRequest(method, url, nil)
 	if err != nil {
 		return animes, err

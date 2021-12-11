@@ -2,7 +2,6 @@ package browser
 
 import (
 	"fmt"
-	"strings"
 
 	"github.com/charmbracelet/bubbles/list"
 	tea "github.com/charmbracelet/bubbletea"
@@ -35,15 +34,10 @@ type Anime struct {
 func (a Anime) Title() string { return a.AnimeName }
 
 func (a Anime) Description() string {
-	return fmt.Sprintf("Episode:%s , Season:%s , Rating:%s", a.EpisodeName(), a.AnimeSeason, a.AnimeRating)
+	return fmt.Sprintf("%s , Season:%s , Rating:%s", a.LatestEpisodeName, a.AnimeSeason, a.AnimeRating)
 }
 
 func (a Anime) FilterValue() string { return a.Title() }
-
-func (a Anime) EpisodeName() string {
-	ep := a.LatestEpisodeName
-	return strings.TrimPrefix(ep, "الحلقة : ")
-}
 
 type Animes struct {
 	Animes []Anime `json:"data"`
@@ -56,15 +50,21 @@ type Response struct {
 type errMsg error
 
 type model struct {
-	list list.Model
-	err  error
+	cfg      *config.Config
+	list     list.Model
+	cursor   int
+	selected map[int]struct{}
+	offset   int
+	limit    int
+	err      error
 }
 
-func InitialModel(cfg *config.Config) model {
+func InitialModel(c *config.Config) model {
 	var animes []Anime
 	var err error
-
-	animes, err = getAnimeData(cfg, 0, 15)
+	offset := 0
+	limit := 30
+	animes, err = getAnimeData(c, offset, limit)
 	if err != nil {
 		return model{err: err}
 	}
@@ -73,7 +73,12 @@ func InitialModel(cfg *config.Config) model {
 		items = append(items, anime)
 	}
 	m := model{
-		list: list.NewModel(items, list.NewDefaultDelegate(), 0, 0),
+		cfg:      c,
+		list:     list.NewModel(items, list.NewDefaultDelegate(), 0, 0),
+		selected: make(map[int]struct{}),
+		err:      nil,
+		offset:   offset,
+		limit:    limit,
 	}
 	m.list.Title = "Latest added animes"
 	return m
