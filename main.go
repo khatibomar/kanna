@@ -21,9 +21,8 @@ func main() {
 		log.Fatalln(err)
 	}
 	infoLogger.Println("starting app...")
-	var browserModel tea.Model
-	browserModel, err = browser.InitialModel(c)
-	p := tea.NewProgram(browserModel)
+	p := tea.NewProgram(browser.InitialModel(c))
+	p.EnterAltScreen()
 	if err := p.Start(); err != nil {
 		errLogger.Fatalln(err)
 	}

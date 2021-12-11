@@ -1,10 +1,8 @@
 package browser
 
 import (
-	"encoding/json"
 	"fmt"
-	"io/ioutil"
-	"net/http"
+	"strings"
 
 	"github.com/charmbracelet/bubbles/list"
 	tea "github.com/charmbracelet/bubbletea"
@@ -34,9 +32,18 @@ type Anime struct {
 	AnimeReleaseDay    string `json:"anime_release_day"`
 }
 
-func (a Anime) Title() string       { return a.AnimeName }
-func (a Anime) Description() string { return a.AnimeId }
+func (a Anime) Title() string { return a.AnimeName }
+
+func (a Anime) Description() string {
+	return fmt.Sprintf("Episode:%s , Season:%s , Rating:%s", a.EpisodeName(), a.AnimeSeason, a.AnimeRating)
+}
+
 func (a Anime) FilterValue() string { return a.Title() }
+
+func (a Anime) EpisodeName() string {
+	ep := a.LatestEpisodeName
+	return strings.TrimPrefix(ep, "الحلقة : ")
+}
 
 type Animes struct {
 	Animes []Anime `json:"data"`
@@ -46,55 +53,32 @@ type Response struct {
 	Res Animes `json:"response"`
 }
 
+type errMsg error
+
 type model struct {
 	list list.Model
+	err  error
 }
 
-func InitialModel(cfg *config.Config) (model, error) {
+func InitialModel(cfg *config.Config) model {
 	var animes []Anime
 	var err error
 
-	animes, err = getAnimeData(cfg, 0, 10)
+	animes, err = getAnimeData(cfg, 0, 15)
 	if err != nil {
-		return model{}, err
+		return model{err: err}
 	}
 	items := []list.Item{}
 	for _, anime := range animes {
 		items = append(items, anime)
 	}
-	return model{
+	m := model{
 		list: list.NewModel(items, list.NewDefaultDelegate(), 0, 0),
-	}, err
+	}
+	m.list.Title = "Latest added animes"
+	return m
 }
 
 func (m model) Init() tea.Cmd {
 	return nil
-}
-
-func getAnimeData(cfg *config.Config, offset, limit int) ([]Anime, error) {
-	var animes []Anime
-	url := fmt.Sprintf(LATEST_EPISODES_URL, offset, limit)
-	method := "GET"
-
-	client := &http.Client{}
-	req, err := http.NewRequest(method, url, nil)
-	if err != nil {
-		return animes, err
-	}
-
-	req.Header.Add("Client-Id", cfg.ClientID)
-	req.Header.Add("Client-Secret", cfg.ClientSecret)
-	req.Header.Add("Accept", "*/*")
-
-	res, err := client.Do(req)
-	if err != nil {
-		return animes, err
-	}
-	defer res.Body.Close()
-
-	body, err := ioutil.ReadAll(res.Body)
-
-	var resp Response
-	err = json.Unmarshal(body, &resp)
-	return resp.Res.Animes, err
 }
