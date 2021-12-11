@@ -1,6 +1,8 @@
 package browser
 
-import tea "github.com/charmbracelet/bubbletea"
+import (
+	tea "github.com/charmbracelet/bubbletea"
+)
 
 func (m model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 	switch msg := msg.(type) {
@@ -18,12 +20,15 @@ func (m model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 			}
 
 		case "M", "m":
-			m.offset += m.limit
-			animes, err := getAnimeData(m.cfg, m.offset, m.limit)
-			m.err = err
-			for _, anime := range animes {
-				m.list.InsertItem(len(m.list.Items()), anime)
+			if !m.isAcceptingRequests {
+				break
 			}
+			m.isAcceptingRequests = false
+			go func(m *model) {
+				animes, err := getAnimeData(m.cfg, m.offset+m.limit, m.limit)
+				m.err = err
+				m.newContentChan <- animes
+			}(&m)
 		}
 	case tea.WindowSizeMsg:
 		top, right, bottom, left := docStyle.GetMargin()
@@ -33,6 +38,15 @@ func (m model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 		return m, nil
 	}
 	var cmd tea.Cmd
+	select {
+	case animes := <-m.newContentChan:
+		for _, anime := range animes {
+			m.list.InsertItem(len(m.list.Items()), anime)
+		}
+		m.offset += m.limit
+		m.isAcceptingRequests = true
+	default:
+	}
 	m.list, cmd = m.list.Update(msg)
 	return m, cmd
 }

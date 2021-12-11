@@ -50,20 +50,22 @@ type Response struct {
 type errMsg error
 
 type model struct {
-	cfg      *config.Config
-	list     list.Model
-	cursor   int
-	selected map[int]struct{}
-	offset   int
-	limit    int
-	err      error
+	cfg                 *config.Config
+	list                list.Model
+	cursor              int
+	selected            map[int]struct{}
+	offset              int
+	limit               int
+	err                 error
+	newContentChan      chan []Anime
+	isAcceptingRequests bool
 }
 
 func InitialModel(c *config.Config) model {
 	var animes []Anime
 	var err error
 	offset := 0
-	limit := 30
+	limit := 10
 	animes, err = getAnimeData(c, offset, limit)
 	if err != nil {
 		return model{err: err}
@@ -73,12 +75,14 @@ func InitialModel(c *config.Config) model {
 		items = append(items, anime)
 	}
 	m := model{
-		cfg:      c,
-		list:     list.NewModel(items, list.NewDefaultDelegate(), 0, 0),
-		selected: make(map[int]struct{}),
-		err:      nil,
-		offset:   offset,
-		limit:    limit,
+		cfg:                 c,
+		list:                list.NewModel(items, list.NewDefaultDelegate(), 0, 0),
+		selected:            make(map[int]struct{}),
+		err:                 nil,
+		offset:              offset,
+		limit:               limit,
+		newContentChan:      make(chan []Anime, 1),
+		isAcceptingRequests: true,
 	}
 	m.list.Title = "Latest added animes"
 	return m
