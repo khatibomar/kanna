@@ -4,9 +4,7 @@ import (
 	"log"
 	"os"
 
-	tea "github.com/charmbracelet/bubbletea"
 	"github.com/khatibomar/tkanna/config"
-	"github.com/khatibomar/tkanna/internal/components/browser"
 )
 
 func main() {
@@ -18,12 +16,8 @@ func main() {
 	}
 	c, err := config.New(f)
 	if err != nil {
-		log.Fatalln(err)
-	}
-	infoLogger.Println("starting app...")
-	p := tea.NewProgram(browser.InitialModel(c))
-	p.EnterAltScreen()
-	if err := p.Start(); err != nil {
 		errLogger.Fatalln(err)
 	}
+	infoLogger.Println("starting app...")
+	infoLogger.Println(c)
 }
