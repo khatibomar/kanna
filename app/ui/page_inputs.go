@@ -104,6 +104,18 @@ func (p *MainPage) setHandlers(cancel context.CancelFunc) {
 	})
 }
 
+// setHandlers : Set handlers for the help page.
+func (p *HelpPage) setHandlers() {
+	// Set grid input captures.
+	p.Grid.SetInputCapture(func(event *tcell.EventKey) *tcell.EventKey {
+		switch event.Key() {
+		case tcell.KeyEsc:
+			core.App.PageHolder.RemovePage(utils.HelpPageID)
+		}
+		return event
+	})
+}
+
 // setHandlers : Set handlers for the page.
 func (p *AnimePage) setHandlers(cancel context.CancelFunc) {
 	// Set grid input captures.
