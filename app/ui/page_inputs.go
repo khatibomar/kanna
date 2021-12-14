@@ -104,6 +104,51 @@ func (p *MainPage) setHandlers(cancel context.CancelFunc) {
 	})
 }
 
+// setHandlers : Set handlers for the page.
+func (p *AnimePage) setHandlers(cancel context.CancelFunc) {
+	// Set grid input captures.
+	p.Grid.SetInputCapture(func(event *tcell.EventKey) *tcell.EventKey {
+		switch event.Key() {
+		case tcell.KeyEsc:
+			cancel()
+			core.App.PageHolder.RemovePage(utils.AnimePageID)
+		}
+		return event
+	})
+
+	// Set table selected function.
+	p.Table.SetSelectedFunc(func(row, _ int) {
+		// We add the current Selection if the there are no selected rows currently.
+		if !p.sWrap.HasSelections() {
+			p.sWrap.AddSelection(row)
+		}
+		log.Println("Creating and showing confirm download modal...")
+		modal := confirmModal(utils.DownloadModalID, "Download episode(s)?", "Yes", func() {
+			// Create a copy of the Selection.
+			selected := p.sWrap.CopySelection()
+			// Download selected chapters.
+			// go p.downloadChapters(selected, 0)
+			log.Println(selected)
+		})
+		ShowModal(utils.DownloadModalID, modal)
+	})
+
+	// Set table input captures.
+	p.Table.SetInputCapture(func(event *tcell.EventKey) *tcell.EventKey {
+		switch event.Key() {
+		// case tcell.KeyCtrlE: // User selects this manga row.
+		// 	p.ctrlEInput()
+		case tcell.KeyCtrlA: // User wants to toggle select All.
+			p.ctrlAInput()
+			// case tcell.KeyCtrlR: // User wants to toggle read status for Selection.
+			// 	p.ctrlRInput()
+			// case tcell.KeyCtrlQ:
+			// 	p.ctrlQInput()
+		}
+		return event
+	})
+}
+
 func (p *AnimePage) ctrlAInput() {
 	// Toggle Selection.
 	p.markAll()

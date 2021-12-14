@@ -123,7 +123,7 @@ func newAnimePage(anime *angoslayer.AnimeDetails) *AnimePage {
 
 	// Set up values
 	go animePage.setAnimeInfo()
-	go animePage.setChapterTable()
+	go animePage.setEpisodesTable()
 
 	return animePage
 }
@@ -154,11 +154,11 @@ func (p *AnimePage) setAnimeInfo() {
 }
 
 // setChapterTable : Fill up the episodes table.
-func (p *AnimePage) setChapterTable() {
+func (p *AnimePage) setEpisodesTable() {
 	log.Println("Setting up anime page episodes table...")
 	ctx, cancel := p.cWrap.ResetContext()
 	// Set handlers.
-	// p.setHandlers(cancel)
+	p.setHandlers(cancel)
 
 	time.Sleep(loadDelay)
 	defer cancel()
