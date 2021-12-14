@@ -32,6 +32,7 @@ func SetUniversalHandlers() {
 
 // ctrlKInput : Shows the help page to the user.
 func ctrlKInput() {
+	ShowHelpPage()
 }
 
 // ctrlSInput : Shows search page to the user.
