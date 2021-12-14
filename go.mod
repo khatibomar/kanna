@@ -3,13 +3,13 @@ module github.com/khatibomar/tkanna
 go 1.17
 
 require (
-	github.com/khatibomar/angoslayer v0.0.0-20211214190416-9a421308a455
+	github.com/gdamore/tcell/v2 v2.4.1-0.20210905002822-f057f0a857a1
+	github.com/khatibomar/angoslayer v0.0.0-20211214193300-127a18c86915
 	github.com/rivo/tview v0.0.0-20211202162923-2a6de950f73b
 )
 
 require (
 	github.com/gdamore/encoding v1.0.0 // indirect
-	github.com/gdamore/tcell/v2 v2.4.1-0.20210905002822-f057f0a857a1 // indirect
 	github.com/lucasb-eyer/go-colorful v1.2.0 // indirect
 	github.com/mattn/go-runewidth v0.0.13 // indirect
 	github.com/rivo/uniseg v0.2.0 // indirect

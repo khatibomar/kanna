@@ -37,11 +37,13 @@ type AnimePage struct {
 func ShowAnimePage(anime *angoslayer.Anime) {
 	id, err := strconv.Atoi(anime.AnimeID)
 	if err != nil {
-		log.Fatalln(err)
+		log.Println(err)
+		return
 	}
 	animeDetails, err := core.App.Client.AnimeService.GetAnimeDetails(id)
 	if err != nil {
-		log.Fatalln(err)
+		log.Println(err)
+		return
 	}
 	animePage := newAnimePage(&animeDetails)
 

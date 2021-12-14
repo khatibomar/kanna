@@ -25,7 +25,8 @@ func Start() {
 
 	log.Println("Running app...")
 	if err := core.App.TView.Run(); err != nil {
-		log.Fatalln(err)
+		log.Println(err)
+		return
 	}
 }
 

@@ -22,13 +22,14 @@ type Tkanna struct {
 
 func (t *Tkanna) Initialise() error {
 	if err := t.setUpLogging(); err != nil {
-		log.Fatalln("Unable to set up logging...")
+		log.Println("Unable to set up logging...")
+		return err
 	}
 
 	if err := t.loadConfiguration(); err != nil {
 		log.Println("Unable to read configuration file. Is it formatted correctly?")
 		log.Println("If in doubt, delete the configuration file to start over!\n\nDetails:")
-		log.Fatalln(err)
+		return err
 	}
 
 	t.TView.SetRoot(t.PageHolder, true).SetFocus(t.PageHolder)
