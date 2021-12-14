@@ -3,7 +3,7 @@ module github.com/khatibomar/tkanna
 go 1.17
 
 require (
-	github.com/khatibomar/angoslayer v0.0.0-20211214043225-9ab736f96356
+	github.com/khatibomar/angoslayer v0.0.0-20211214190416-9a421308a455
 	github.com/rivo/tview v0.0.0-20211202162923-2a6de950f73b
 )
 

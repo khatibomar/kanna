@@ -36,13 +36,9 @@ func ctrlKInput() {
 }
 
 // ctrlSInput : Shows search page to the user.
-// func ctrlSInput() {
-// 	// Do not allow when on login screen.
-// 	if page, _ := core.App.PageHolder.GetFrontPage(); page == utils.LoginPageID {
-// 		return
-// 	}
-// 	// ShowSearchPage()
-// }
+func ctrlSInput() {
+	ShowSearchPage()
+}
 
 // ctrlCInput : Sends an interrupt signal to the application to stop.
 func ctrlCInput() {
@@ -50,17 +46,8 @@ func ctrlCInput() {
 	core.App.TView.Stop()
 }
 
-// ctrlSInput : Shows search page to the user.
-func ctrlSInput() {
-	// Do not allow when on login screen.
-	// if page, _ := core.App.PageHolder.GetFrontPage(); page == utils.LoginPageID {
-	// 	return
-	// }
-	// ShowSearchPage()
-}
-
 // setHandlers : Set handlers for the main page.
-func (p *MainPage) setHandlers(cancel context.CancelFunc) {
+func (p *MainPage) setHandlers(cancel context.CancelFunc, searchParams *SearchParams) {
 	// Set table input captures.
 	p.Table.SetInputCapture(func(event *tcell.EventKey) *tcell.EventKey {
 		var reload bool
@@ -88,7 +75,11 @@ func (p *MainPage) setHandlers(cancel context.CancelFunc) {
 		if reload {
 			// Cancel any current loading, and create a new one.
 			cancel()
-			go p.setLatestUpdatedAnimeTable()
+			if searchParams != nil {
+				go p.setLatestUpdatedAnimeTable(searchParams)
+			} else {
+				go p.setLatestUpdatedAnimeTable(nil)
+			}
 		}
 		return event
 	})
@@ -165,4 +156,27 @@ func (p *AnimePage) setHandlers(cancel context.CancelFunc) {
 func (p *AnimePage) ctrlAInput() {
 	// Toggle Selection.
 	p.markAll()
+}
+
+// setHandlers : Set handlers for the search page.
+func (p *SearchPage) setHandlers() {
+	// Set grid input captures.
+	p.Grid.SetInputCapture(func(event *tcell.EventKey) *tcell.EventKey {
+		switch event.Key() {
+		case tcell.KeyEsc: // When user presses ESC, then we remove the Search page.
+			core.App.PageHolder.RemovePage(utils.SearchPageID)
+		case tcell.KeyTab: // When user presses Tab, they are sent back to the search form.
+			core.App.TView.SetFocus(p.Form)
+		}
+		return event
+	})
+
+	// Set up input capture for the search bar.
+	p.Form.SetInputCapture(func(event *tcell.EventKey) *tcell.EventKey {
+		switch event.Key() {
+		case tcell.KeyDown: // When user presses KeyDown, they are sent to the search results table.
+			core.App.TView.SetFocus(p.Table)
+		}
+		return event
+	})
 }

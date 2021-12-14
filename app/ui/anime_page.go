@@ -35,7 +35,10 @@ type AnimePage struct {
 
 // ShowAnimePage : Make the app show the anime page.
 func ShowAnimePage(anime *angoslayer.Anime) {
-	id, _ := strconv.Atoi(anime.AnimeID)
+	id, err := strconv.Atoi(anime.AnimeID)
+	if err != nil {
+		log.Fatalln(err)
+	}
 	animeDetails, err := core.App.Client.AnimeService.GetAnimeDetails(id)
 	if err != nil {
 		log.Fatalln(err)

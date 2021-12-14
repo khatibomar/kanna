@@ -8,6 +8,7 @@ import (
 	"strings"
 	"time"
 
+	"github.com/khatibomar/angoslayer"
 	"github.com/khatibomar/tkanna/app/core"
 	"github.com/khatibomar/tkanna/app/ui/utils"
 	"github.com/rivo/tview"
@@ -73,7 +74,7 @@ func newMainPage() *MainPage {
 	}
 
 	go mainPage.setTableGrid()
-	go mainPage.setLatestUpdatedAnimeTable()
+	go mainPage.setLatestUpdatedAnimeTable(nil)
 	return mainPage
 }
 
@@ -86,15 +87,18 @@ func (p *MainPage) setTableGrid() {
 	log.Println("Finished setting table grid.")
 }
 
-func (p *MainPage) setLatestUpdatedAnimeTable() {
+func (p *MainPage) setLatestUpdatedAnimeTable(searchParams *SearchParams) {
 	log.Println("Setting latest updated anime table...")
 	ctx, cancel := p.cWrap.ResetContext()
-	p.setHandlers(cancel)
+	p.setHandlers(cancel, searchParams)
 
 	time.Sleep(loadDelay)
 	defer cancel()
 
 	tableTitle := "Latest Updated Anime"
+	if searchParams != nil {
+		tableTitle = "Search Results"
+	}
 
 	core.App.TView.QueueUpdateDraw(func() {
 		// Clear current entries
@@ -127,7 +131,13 @@ func (p *MainPage) setLatestUpdatedAnimeTable() {
 	if p.cWrap.ToCancel(ctx) {
 		return
 	}
-	list, err := core.App.Client.AnimeService.GetLatestAnimes(p.CurrentOffset, limit)
+	var list []angoslayer.Anime
+	var err error
+	if searchParams != nil {
+		list, err = core.App.Client.AnimeService.SearchByName(0, limit, searchParams.name, angoslayer.AnimeYearAsc)
+	} else {
+		list, err = core.App.Client.AnimeService.GetLatestAnimes(p.CurrentOffset, limit)
+	}
 	if err != nil {
 		log.Println(err.Error())
 		core.App.TView.QueueUpdateDraw(func() {
