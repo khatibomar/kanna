@@ -20,12 +20,11 @@ const (
 )
 
 // MainPage : This struct contains the grid and the entry table.
-// In addition, it also keeps track of whether to show followed/popular manga based on login status
-// as well as the entry offset.
 type MainPage struct {
-	Grid          *tview.Grid  // The page grid.
-	Table         *tview.Table // The table that contains the list of manga.
+	Grid          *tview.Grid
+	Table         *tview.Table
 	CurrentOffset int
+	MaxOffset     int
 
 	cWrap *utils.ContextWrapper // For context cancellation.
 }
@@ -91,6 +90,7 @@ func (p *MainPage) setTableGrid() {
 func (p *MainPage) setLatestUpdatedAnimeTable() {
 	log.Println("Setting latest updated anime table...")
 	ctx, cancel := p.cWrap.ResetContext()
+	p.setHandlers(cancel)
 
 	time.Sleep(loadDelay)
 	defer cancel()

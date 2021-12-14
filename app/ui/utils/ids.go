@@ -2,7 +2,7 @@ package utils
 
 const (
 	MainPageID   = "main_page"
-	MangaPageID  = "manga_page"
+	AnimePageID  = "anime_page"
 	HelpPageID   = "help_page"
 	SearchPageID = "search_page"
 
