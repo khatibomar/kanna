@@ -5,18 +5,21 @@ import (
 
 	"github.com/khatibomar/angoslayer"
 	"github.com/khatibomar/tkanna/app/core"
+	"github.com/khatibomar/tkanna/app/ui"
 	"github.com/rivo/tview"
 )
 
 func Start() {
-	cfg := angoslayer.NewConfig(core.App.Config.ClientID, core.App.Config.ClientSecret)
 	core.App = &core.Tkanna{
-		Client:     angoslayer.NewAngoClient(cfg),
+		Client:     &angoslayer.AngoClient{},
 		TView:      tview.NewApplication(),
 		PageHolder: tview.NewPages(),
 	}
+	core.App.Initialise()
+	cfg := angoslayer.NewConfig(core.App.Config.ClientID, core.App.Config.ClientSecret)
+	core.App.Client = angoslayer.NewAngoClient(cfg)
 
-	// ui.ShowMainPage()
+	ui.ShowMainPage()
 	log.Println("Initialised starting screen.")
 	// ui.SetUniversalHandlers()
 

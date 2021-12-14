@@ -7,7 +7,7 @@ import (
 	"path/filepath"
 )
 
-var configFilePath = filepath.Join(getConfDir(), "config.toml")
+var configFilePath = filepath.Join(getConfDir(), "config.json")
 
 type Config struct {
 	ClientID     string
