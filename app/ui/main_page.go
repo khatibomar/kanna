@@ -24,7 +24,6 @@ type MainPage struct {
 	Grid          *tview.Grid
 	Table         *tview.Table
 	CurrentOffset int
-	MaxOffset     int
 
 	cWrap *utils.ContextWrapper // For context cancellation.
 }
@@ -145,10 +144,11 @@ func (p *MainPage) setLatestUpdatedAnimeTable() {
 	})
 
 	// Fill in the details
-	for index, anime := range list {
+	for index := 0; index < len(list); index++ {
 		if p.cWrap.ToCancel(ctx) {
 			return
 		}
+		anime := list[index]
 		// Anime title cell.
 		mtCell := tview.NewTableCell(fmt.Sprintf("%-40s", anime.AnimeName)).
 			SetMaxWidth(400).SetTextColor(utils.GuestMainPageTitleColor).SetReference(&anime)

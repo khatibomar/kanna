@@ -21,7 +21,7 @@ func Start() {
 
 	ui.ShowMainPage()
 	log.Println("Initialised starting screen.")
-	// ui.SetUniversalHandlers()
+	ui.SetUniversalHandlers()
 
 	log.Println("Running app...")
 	if err := core.App.TView.Run(); err != nil {

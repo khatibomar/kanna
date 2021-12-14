@@ -66,7 +66,7 @@ func (p *MainPage) setHandlers(cancel context.CancelFunc) {
 		switch event.Key() {
 		// User wants to go to the next offset page.
 		case tcell.KeyCtrlF:
-			if p.CurrentOffset+limit >= p.MaxOffset {
+			if p.CurrentOffset+limit >= maxOffset {
 				modal := okModal(utils.OffsetErrorModalID, "No more results to show.")
 				ShowModal(utils.OffsetErrorModalID, modal)
 			} else {
@@ -102,4 +102,9 @@ func (p *MainPage) setHandlers(cancel context.CancelFunc) {
 			ShowAnimePage(anime)
 		}
 	})
+}
+
+func (p *AnimePage) ctrlAInput() {
+	// Toggle Selection.
+	p.markAll()
 }
