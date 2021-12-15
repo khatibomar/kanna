@@ -1,6 +1,6 @@
 package main
 
-import "github.com/khatibomar/tkanna/app/service"
+import "github.com/khatibomar/kanna/app/service"
 
 func main() {
 	service.Start()

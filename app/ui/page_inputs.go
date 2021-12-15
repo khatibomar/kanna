@@ -6,9 +6,9 @@ import (
 	"math"
 
 	"github.com/gdamore/tcell/v2"
-	"github.com/khatibomar/angoslayer"
-	"github.com/khatibomar/tkanna/app/core"
-	"github.com/khatibomar/tkanna/app/ui/utils"
+	"github.com/khatibomar/kanna/app/core"
+	"github.com/khatibomar/kanna/app/ui/utils"
+	"github.com/khatibomar/tohru"
 )
 
 // SetUniversalHandlers : Set universal inputs for the app.
@@ -90,7 +90,7 @@ func (p *MainPage) setHandlers(cancel context.CancelFunc, searchParams *SearchPa
 		animeRef := p.Table.GetCell(row, 0).GetReference()
 		if animeRef == nil {
 			return
-		} else if anime, ok := animeRef.(*angoslayer.Anime); ok {
+		} else if anime, ok := animeRef.(*tohru.Anime); ok {
 			ShowAnimePage(anime)
 		}
 	})

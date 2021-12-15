@@ -10,9 +10,9 @@ import (
 	"time"
 
 	"github.com/gdamore/tcell/v2"
-	"github.com/khatibomar/angoslayer"
-	"github.com/khatibomar/tkanna/app/core"
-	"github.com/khatibomar/tkanna/app/ui/utils"
+	"github.com/khatibomar/kanna/app/core"
+	"github.com/khatibomar/kanna/app/ui/utils"
+	"github.com/khatibomar/tohru"
 	"github.com/rivo/tview"
 )
 
@@ -24,7 +24,7 @@ const (
 
 // AnimePage : This struct contains the required primitives for the anime page.
 type AnimePage struct {
-	Anime *angoslayer.AnimeDetails
+	Anime *tohru.AnimeDetails
 	Grid  *tview.Grid
 	Info  *tview.TextView
 	Table *tview.Table
@@ -34,7 +34,7 @@ type AnimePage struct {
 }
 
 // ShowAnimePage : Make the app show the anime page.
-func ShowAnimePage(anime *angoslayer.Anime) {
+func ShowAnimePage(anime *tohru.Anime) {
 	id, err := strconv.Atoi(anime.AnimeID)
 	if err != nil {
 		log.Println(err)
@@ -52,7 +52,7 @@ func ShowAnimePage(anime *angoslayer.Anime) {
 }
 
 // newAnimePage : Creates a new anime page.
-func newAnimePage(anime *angoslayer.AnimeDetails) *AnimePage {
+func newAnimePage(anime *tohru.AnimeDetails) *AnimePage {
 	var dimensions []int
 	for i := 0; i < 15; i++ {
 		dimensions = append(dimensions, -1)
@@ -242,18 +242,18 @@ func (p *AnimePage) setEpisodesTable() {
 }
 
 // getAllChapters : Get All episodes for the anime.
-func (p *AnimePage) getAllEpisodes(ctx context.Context, animeID int) ([]angoslayer.Episode, error) {
+func (p *AnimePage) getAllEpisodes(ctx context.Context, animeID int) ([]tohru.Episode, error) {
 	var (
-		episodes   []angoslayer.Episode
+		episodes   []tohru.Episode
 		currOffset = 0
 	)
 	for {
 		if p.cWrap.ToCancel(ctx) {
-			return []angoslayer.Episode{}, fmt.Errorf(contextCancelledError)
+			return []tohru.Episode{}, fmt.Errorf(contextCancelledError)
 		}
 		list, err := core.App.Client.EpisodeService.GetEpisodesList(animeID)
 		if err != nil {
-			return []angoslayer.Episode{}, err
+			return []tohru.Episode{}, err
 		}
 		log.Printf("Got %d of %d chapters\n", currOffset, len(list))
 		episodes = list

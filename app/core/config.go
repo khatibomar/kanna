@@ -15,7 +15,7 @@ type Config struct {
 	DownloadDir  string
 }
 
-func (t *Tkanna) loadConfiguration() error {
+func (t *Kanna) loadConfiguration() error {
 	if err := os.MkdirAll(getConfDir(), os.ModePerm); err != nil {
 		return err
 	}
@@ -36,7 +36,7 @@ func (t *Tkanna) loadConfiguration() error {
 	return t.saveConfiguration()
 }
 
-func (t *Tkanna) saveConfiguration() error {
+func (t *Kanna) saveConfiguration() error {
 	confBytes, err := json.MarshalIndent(t.Config, "", "\t")
 	if err != nil {
 		return err
@@ -68,5 +68,5 @@ func getConfDir() string {
 		}
 	}
 
-	return filepath.Join(configDir, "tkanna")
+	return filepath.Join(configDir, "kanna")
 }

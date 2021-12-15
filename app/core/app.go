@@ -4,14 +4,14 @@ import (
 	"log"
 	"os"
 
-	"github.com/khatibomar/angoslayer"
+	"github.com/khatibomar/tohru"
 	"github.com/rivo/tview"
 )
 
-var App *Tkanna
+var App *Kanna
 
-type Tkanna struct {
-	Client *angoslayer.AngoClient
+type Kanna struct {
+	Client *tohru.TohruClient
 
 	TView      *tview.Application
 	PageHolder *tview.Pages
@@ -20,7 +20,7 @@ type Tkanna struct {
 	LogFile *os.File
 }
 
-func (t *Tkanna) Initialise() error {
+func (t *Kanna) Initialise() error {
 	if err := t.setUpLogging(); err != nil {
 		log.Println("Unable to set up logging...")
 		return err
@@ -37,7 +37,7 @@ func (t *Tkanna) Initialise() error {
 	return nil
 }
 
-func (t *Tkanna) Shutdown() {
+func (t *Kanna) Shutdown() {
 	App.TView.Sync()
 	App.TView.Stop()
 

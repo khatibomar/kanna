@@ -16,7 +16,7 @@ const (
 
 var loggingDir = filepath.Join(getConfDir(), "logs")
 
-func (t *Tkanna) setUpLogging() error {
+func (t *Kanna) setUpLogging() error {
 	if err := os.MkdirAll(loggingDir, os.ModePerm); err != nil {
 		return err
 	}
@@ -44,6 +44,6 @@ func (t *Tkanna) setUpLogging() error {
 	return nil
 }
 
-func (t *Tkanna) stopLogging() error {
+func (t *Kanna) stopLogging() error {
 	return t.LogFile.Close()
 }

@@ -3,8 +3,8 @@ package ui
 import (
 	"fmt"
 
-	"github.com/khatibomar/tkanna/app/core"
-	"github.com/khatibomar/tkanna/app/ui/utils"
+	"github.com/khatibomar/kanna/app/core"
+	"github.com/khatibomar/kanna/app/ui/utils"
 	"github.com/rivo/tview"
 )
 

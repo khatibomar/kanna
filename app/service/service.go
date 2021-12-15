@@ -3,21 +3,21 @@ package service
 import (
 	"log"
 
-	"github.com/khatibomar/angoslayer"
-	"github.com/khatibomar/tkanna/app/core"
-	"github.com/khatibomar/tkanna/app/ui"
+	"github.com/khatibomar/kanna/app/core"
+	"github.com/khatibomar/kanna/app/ui"
+	"github.com/khatibomar/tohru"
 	"github.com/rivo/tview"
 )
 
 func Start() {
-	core.App = &core.Tkanna{
-		Client:     &angoslayer.AngoClient{},
+	core.App = &core.Kanna{
+		Client:     &tohru.TohruClient{},
 		TView:      tview.NewApplication(),
 		PageHolder: tview.NewPages(),
 	}
 	core.App.Initialise()
-	cfg := angoslayer.NewConfig(core.App.Config.ClientID, core.App.Config.ClientSecret)
-	core.App.Client = angoslayer.NewAngoClient(cfg)
+	cfg := tohru.NewConfig(core.App.Config.ClientID, core.App.Config.ClientSecret)
+	core.App.Client = tohru.NewTohruClient(cfg)
 
 	ui.ShowMainPage()
 	log.Println("Initialised starting screen.")

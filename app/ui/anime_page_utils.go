@@ -5,8 +5,8 @@ import (
 	"path/filepath"
 	"strings"
 
-	"github.com/khatibomar/angoslayer"
-	"github.com/khatibomar/tkanna/app/core"
+	"github.com/khatibomar/kanna/app/core"
+	"github.com/khatibomar/tohru"
 )
 
 const (
@@ -14,7 +14,7 @@ const (
 )
 
 // save: Save a Episode.
-func (p *AnimePage) saveEpisode(episode *angoslayer.Episode) error {
+func (p *AnimePage) saveEpisode(episode *tohru.Episode) error {
 	input_url := episode.EpisodeUrls[0].EpisodeURL
 	u, err := url.Parse(input_url)
 	if err != nil {
@@ -56,7 +56,7 @@ func (p *AnimePage) saveEpisode(episode *angoslayer.Episode) error {
 }
 
 // getDownloadFolder : Get the download folder for a manga's chapter.
-func (p *AnimePage) getDownloadFolder(episode *angoslayer.Episode) string {
+func (p *AnimePage) getDownloadFolder(episode *tohru.Episode) string {
 	animeName := p.Anime.AnimeName
 	episodeNumber := episode.EpisodeNumber
 	// Remove invalid characters from the folder name
