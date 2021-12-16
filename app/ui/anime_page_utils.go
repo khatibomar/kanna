@@ -66,14 +66,11 @@ func getDwnLink(episode *tohru.Episode) (string, error) {
 	if err != nil {
 		return "", err
 	}
-	urls, err := core.App.Client.EpisodeService.GetDirectDownloadLinks(animeSpecialName, nb)
+	url, err := core.App.Client.EpisodeService.GetFirstDirectDownloadLink(animeSpecialName, nb)
 	if err != nil {
 		return "", err
 	}
-	if len(urls) == 0 {
-		return "", fmt.Errorf("No direct links available")
-	}
-	return urls[0], nil
+	return url, nil
 }
 
 // getDownloadFolder : Get the download folder for a manga's chapter.
