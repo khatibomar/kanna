@@ -2,13 +2,14 @@ package ui
 
 import (
 	"fmt"
+	"log"
 	"net/url"
+	"os"
 	"os/exec"
-	"path/filepath"
+	"path"
 	"strconv"
 	"strings"
 
-	"github.com/khatibomar/chunky/dwn"
 	"github.com/khatibomar/kanna/app/core"
 	"github.com/khatibomar/tohru"
 )
@@ -24,11 +25,21 @@ func (p *AnimePage) saveEpisode(episode *tohru.Episode, errChan chan error) {
 		errChan <- err
 		return
 	}
-	filename := fmt.Sprintf("%s%s", episode.EpisodeName, filepath.Ext("mp4"))
-	filePath := p.getDownloadFolder(episode)
+	filePath := p.getDownloadPath(episode)
+	filename := fmt.Sprintf("%s%s.%s", filePath, episode.EpisodeName, "mp4")
 
-	d := dwn.NewFileDownloader(url, filename, filePath)
-	errChan <- d.Download()
+	err = os.MkdirAll(filePath, 0777)
+	if err != nil {
+		errChan <- err
+		return
+	}
+	cmd := exec.Command("wget", "-c", url, "-O", filename)
+	if err := cmd.Run(); err != nil {
+		o, _ := cmd.CombinedOutput()
+		log.Println(string(o))
+		errChan <- err
+		return
+	}
 }
 
 // save: Save a Episode.
@@ -73,17 +84,17 @@ func getDwnLink(episode *tohru.Episode) (string, error) {
 	return url, nil
 }
 
-// getDownloadFolder : Get the download folder for a manga's chapter.
-func (p *AnimePage) getDownloadFolder(episode *tohru.Episode) string {
+// getDownloadFolder : Get the download folder for an episode.
+func (p *AnimePage) getDownloadPath(episode *tohru.Episode) string {
 	animeName := p.Anime.AnimeName
 	episodeNumber := episode.EpisodeNumber
-	// Remove invalid characters from the folder name
-	restricted := []string{"<", ">", ":", "/", "|", "?", "*", "\"", "\\", "."}
-	for _, c := range restricted {
-		animeName = strings.ReplaceAll(animeName, c, "-")
-		episodeNumber = strings.ReplaceAll(episodeNumber, c, "-")
-	}
 
-	folder := filepath.Join(core.App.Config.DownloadDir, animeName, episodeNumber)
-	return folder
+	// Remove invalid characters from the folder name
+	restricted := []string{"<", ">", ":", "/", "|", "?", "*", "\"", "\\", ".", ",", " "}
+	for _, c := range restricted {
+		animeName = strings.ReplaceAll(animeName, c, "_")
+	}
+	fullPath := path.Join(core.App.Config.DownloadDir, animeName, episodeNumber) + "/"
+
+	return fullPath
 }

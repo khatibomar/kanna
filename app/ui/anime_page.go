@@ -223,7 +223,8 @@ func (p *AnimePage) setEpisodesTable() {
 		// Chapter download status
 		var downloadStatus string
 		// Check for the presence of the download folder.
-		if _, err = os.Stat(p.getDownloadFolder(&episode)); err == nil {
+		pth := p.getDownloadPath(&episode)
+		if _, err = os.Stat(pth); err == nil {
 			downloadStatus = "Y"
 		}
 		downloadCell := tview.NewTableCell(downloadStatus).SetTextColor(utils.AnimePageDownloadStatColor)
