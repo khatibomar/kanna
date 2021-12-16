@@ -24,8 +24,8 @@ func (p *AnimePage) saveEpisode(episode *tohru.Episode, errChan chan error) {
 		errChan <- err
 		return
 	}
-	filename := fmt.Sprintf("%s%s", p.getDownloadFolder(episode), filepath.Ext("mp4"))
-	filePath := filepath.Join(core.App.Config.DownloadDir, filename)
+	filename := fmt.Sprintf("%s%s", episode.EpisodeName, filepath.Ext("mp4"))
+	filePath := p.getDownloadFolder(episode)
 
 	d := dwn.NewFileDownloader(url, filename, filePath)
 	errChan <- d.Download()
