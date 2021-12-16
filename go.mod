@@ -4,12 +4,14 @@ go 1.17
 
 require (
 	github.com/gdamore/tcell/v2 v2.4.1-0.20210905002822-f057f0a857a1
-	github.com/khatibomar/tohru v0.0.0-20211215152913-1338f59b6805
+	github.com/khatibomar/chunky v0.0.0-20211213053022-cd98a09fdb2e
+	github.com/khatibomar/tohru v0.0.0-20211216120951-796a0a23a251
 	github.com/rivo/tview v0.0.0-20211202162923-2a6de950f73b
 )
 
 require (
 	github.com/gdamore/encoding v1.0.0 // indirect
+	github.com/khatibomar/kobayashi v0.0.0-20211216065057-5e57f7c1613e // indirect
 	github.com/lucasb-eyer/go-colorful v1.2.0 // indirect
 	github.com/mattn/go-runewidth v0.0.13 // indirect
 	github.com/rivo/uniseg v0.2.0 // indirect

@@ -1,10 +1,14 @@
 package ui
 
 import (
+	"fmt"
 	"net/url"
+	"os/exec"
 	"path/filepath"
+	"strconv"
 	"strings"
 
+	"github.com/khatibomar/chunky/dwn"
 	"github.com/khatibomar/kanna/app/core"
 	"github.com/khatibomar/tohru"
 )
@@ -14,11 +18,41 @@ const (
 )
 
 // save: Save a Episode.
-func (p *AnimePage) saveEpisode(episode *tohru.Episode) error {
+func (p *AnimePage) saveEpisode(episode *tohru.Episode, errChan chan error) {
+	url, err := getDwnLink(episode)
+	if err != nil {
+		errChan <- err
+		return
+	}
+	filename := fmt.Sprintf("%s%s", p.getDownloadFolder(episode), filepath.Ext("mp4"))
+	filePath := filepath.Join(core.App.Config.DownloadDir, filename)
+
+	d := dwn.NewFileDownloader(url, filename, filePath)
+	errChan <- d.Download()
+}
+
+// save: Save a Episode.
+func (p *AnimePage) streamEpisode(episode *tohru.Episode, errChan chan error) {
+	url, err := getDwnLink(episode)
+	if err != nil {
+		errChan <- err
+		return
+	}
+	mpv := exec.Command("mpv", url)
+	if err := mpv.Start(); err != nil {
+		errChan <- fmt.Errorf("%q: failed to start mpv", err)
+		return
+	}
+}
+
+func getDwnLink(episode *tohru.Episode) (string, error) {
+	if len(episode.EpisodeUrls) == 0 {
+		return "", fmt.Errorf("No Download links available")
+	}
 	input_url := episode.EpisodeUrls[0].EpisodeURL
 	u, err := url.Parse(input_url)
 	if err != nil {
-		return err
+		return "", err
 	}
 	params := u.Query()
 	var animeSpecialName string
@@ -28,31 +62,18 @@ func (p *AnimePage) saveEpisode(episode *tohru.Episode) error {
 		animeSpecialName = params["n"][0]
 		animeSpecialName = strings.Split(animeSpecialName, "\\")[0]
 	}
-	// nb, err := strconv.Atoi(episode.EpisodeNumber)
-	// if err != nil {
-	// 	return nil
-	// }
-	// urls, err := core.App.Client.EpisodeService.GetDownloadLinks(animeSpecialName, nb)
-	// if err != nil {
-	// 	return err
-	// }
-
-	// // Get the pages to download
-	// pages := chapter.Attributes.Data
-
-	// link, err := downloader.GetChapterPage(page)
-	// if err != nil {
-	// 	return err
-	// }
-
-	// filename := fmt.Sprintf("%s%s", p.getDownloadFolder(episode) , filepath.Ext(page))
-	// filePath := filepath.Join(core.App.Config.DownloadDir, filename)
-	// // Save image
-	// if err = ioutil.WriteFile(filePath, link, os.ModePerm); err != nil {
-	// 	return err
-	// }
-
-	return nil
+	nb, err := strconv.Atoi(episode.EpisodeNumber)
+	if err != nil {
+		return "", err
+	}
+	urls, err := core.App.Client.EpisodeService.GetDirectDownloadLinks(animeSpecialName, nb)
+	if err != nil {
+		return "", err
+	}
+	if len(urls) == 0 {
+		return "", fmt.Errorf("No direct links available")
+	}
+	return urls[0], nil
 }
 
 // getDownloadFolder : Get the download folder for a manga's chapter.

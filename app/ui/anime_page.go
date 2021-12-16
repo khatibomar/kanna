@@ -85,17 +85,13 @@ func newAnimePage(anime *tohru.AnimeDetails) *AnimePage {
 	downloadHeader := tview.NewTableCell("Download Status").
 		SetTextColor(utils.AnimePageDownloadStatColor).
 		SetSelectable(false)
-	scanGroupHeader := tview.NewTableCell("ScanGroup").
-		SetTextColor(utils.AnimePageScanGroupColor).
-		SetSelectable(false)
-	readMarkerHeader := tview.NewTableCell("Read Status").
+	watchMarkerHeader := tview.NewTableCell("Watch Status").
 		SetTextColor(utils.AnimePageReadStatColor).
 		SetSelectable(false)
 	table.SetCell(0, 0, numHeader).
 		SetCell(0, 1, titleHeader).
 		SetCell(0, 2, downloadHeader).
-		SetCell(0, 3, scanGroupHeader).
-		SetCell(0, 4, readMarkerHeader).
+		SetCell(0, 3, watchMarkerHeader).
 		SetFixed(1, 0)
 	// Set table attributes
 	table.SetSelectable(true, false).
@@ -162,25 +158,22 @@ func (p *AnimePage) setAnimeInfo() {
 func (p *AnimePage) setEpisodesTable() {
 	log.Println("Setting up anime page episodes table...")
 	ctx, cancel := p.cWrap.ResetContext()
-	// Set handlers.
 	p.setHandlers(cancel)
 
 	time.Sleep(loadDelay)
 	defer cancel()
 
-	// Show loading status so user knows it's loading.
 	core.App.TView.QueueUpdateDraw(func() {
 		loadingCell := tview.NewTableCell("Loading...").SetSelectable(false)
 		p.Table.SetCell(1, 1, loadingCell)
 	})
 
-	// Get All chapters
 	if p.cWrap.ToCancel(ctx) {
 		return
 	}
 	id, _ := strconv.Atoi(p.Anime.AnimeID)
 	episodes, err := p.getAllEpisodes(ctx, id)
-	if err != nil { // If error getting chapters.
+	if err != nil {
 		if strings.Contains(err.Error(), contextCancelledError) {
 			return
 		}
@@ -190,7 +183,7 @@ func (p *AnimePage) setEpisodesTable() {
 			ShowModal(utils.GenericAPIErrorModalID, modal)
 		})
 		return
-	} else if len(episodes) == 0 { // If there are no chapters.
+	} else if len(episodes) == 0 {
 		core.App.TView.QueueUpdateDraw(func() {
 			noResultsCell := tview.NewTableCell("No episodes!").SetSelectable(false)
 			p.Table.SetCell(1, 1, noResultsCell)
@@ -204,7 +197,20 @@ func (p *AnimePage) setEpisodesTable() {
 		if p.cWrap.ToCancel(ctx) {
 			return
 		}
-		episode := episodes[index]
+		anID, _ := strconv.Atoi(p.Anime.AnimeID)
+		epId, _ := strconv.Atoi(episodes[index].EpisodeID)
+		episode, err := core.App.Client.EpisodeService.GetEpisodeDetails(anID, epId)
+		if err != nil {
+			if strings.Contains(err.Error(), contextCancelledError) {
+				return
+			}
+			log.Println(fmt.Sprintf("Error getting anime episodes: %s", err.Error()))
+			core.App.TView.QueueUpdateDraw(func() {
+				modal := okModal(utils.GenericAPIErrorModalID, "Error getting anime episodes.\nCheck log for details.")
+				ShowModal(utils.GenericAPIErrorModalID, modal)
+			})
+			return
+		}
 		// Chapter Number
 		chapterNumCell := tview.NewTableCell(
 			fmt.Sprintf("%-6s", episode.EpisodeNumber)).

@@ -2,6 +2,7 @@ package ui
 
 import (
 	"context"
+	"fmt"
 	"log"
 	"math"
 
@@ -127,14 +128,71 @@ func (p *AnimePage) setHandlers(cancel context.CancelFunc) {
 			p.sWrap.AddSelection(row)
 		}
 		log.Println("Creating and showing confirm download modal...")
-		modal := confirmModal(utils.DownloadModalID, "Download episode(s)?", "Yes", func() {
-			// Create a copy of the Selection.
-			selected := p.sWrap.CopySelection()
-			// Download selected chapters.
-			// go p.downloadChapters(selected, 0)
-			log.Println(selected)
-		})
-		ShowModal(utils.DownloadModalID, modal)
+
+		errChan := make(chan error)
+		if len(p.sWrap.Selection) > 1 {
+			modal := confirmModal(utils.DownloadModalID, "Download episode(s)?", "Yes", func() {
+				// Create a copy of the Selection.
+				selected := p.sWrap.CopySelection()
+				// Download selected chapters.
+				// go p.downloadChapters(selected, 0)
+				log.Println(selected)
+			})
+			ShowModal(utils.DownloadModalID, modal)
+		} else {
+			streamF := func() {
+				selected := p.sWrap.CopySelection()
+				for index := range selected {
+					var episode *tohru.Episode
+					var ok bool
+					if episode, ok = p.Table.GetCell(index, 0).GetReference().(*tohru.Episode); !ok {
+						return
+					}
+					log.Printf("Streaming episode %s\n", episode.EpisodeName)
+					log.Println(episode.EpisodeUrls)
+					go p.streamEpisode(episode, errChan)
+				}
+
+				log.Println(selected)
+				for index := range selected {
+					p.sWrap.RemoveSelection(index)
+				}
+				modal := okModal(utils.InfoModalID, "Stream Starting...\n this operation may take few minutes based on internet connection and mpv launch \nif error happened it will be reported")
+				ShowModal(utils.InfoModalID, modal)
+			}
+			dwnF := func() {
+				selected := p.sWrap.CopySelection()
+				for index := range selected {
+					var episode *tohru.Episode
+					var ok bool
+					if episode, ok = p.Table.GetCell(index, 0).GetReference().(*tohru.Episode); !ok {
+						return
+					}
+					go p.saveEpisode(episode, errChan)
+				}
+
+				log.Println(selected)
+				for index := range selected {
+					p.sWrap.RemoveSelection(index)
+				}
+				info := fmt.Sprintf("Download Starting... \nyou can find file in %s\nif error happened it will be reported", core.App.Config.DownloadDir)
+				modal := okModal(utils.InfoModalID, info)
+				ShowModal(utils.InfoModalID, modal)
+			}
+			modal := watchOrDownloadModal(utils.WatchOrDownloadModalID, "Select Option", streamF, dwnF)
+			ShowModal(utils.WatchOrDownloadModalID, modal)
+		}
+		go func(errChan chan error) {
+			select {
+			case err := <-errChan:
+				log.Println(err)
+				core.App.TView.QueueUpdateDraw(func() {
+					modal := okModal(utils.GenericAPIErrorModalID, "Error getting anime episodes.\nCheck log for details.")
+					ShowModal(utils.GenericAPIErrorModalID, modal)
+				})
+			default:
+			}
+		}(errChan)
 	})
 
 	// Set table input captures.
