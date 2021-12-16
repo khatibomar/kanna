@@ -2,7 +2,6 @@ package ui
 
 import (
 	"fmt"
-	"log"
 	"net/url"
 	"os"
 	"os/exec"
@@ -10,6 +9,7 @@ import (
 	"strconv"
 	"strings"
 
+	"github.com/cavaliercoder/grab"
 	"github.com/khatibomar/kanna/app/core"
 	"github.com/khatibomar/tohru"
 )
@@ -33,13 +33,11 @@ func (p *AnimePage) saveEpisode(episode *tohru.Episode, errChan chan error) {
 		errChan <- err
 		return
 	}
-	cmd := exec.Command("wget", "-c", url, "-O", filename)
-	if err := cmd.Run(); err != nil {
-		o, _ := cmd.CombinedOutput()
-		log.Println(string(o))
+	_, err = grab.Get(filename, url)
+	if err != nil {
 		errChan <- err
-		return
 	}
+
 }
 
 // save: Save a Episode.
