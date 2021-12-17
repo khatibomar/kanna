@@ -140,7 +140,7 @@ func (p *AnimePage) setHandlers(cancel context.CancelFunc) {
 			})
 			ShowModal(utils.DownloadModalID, modal)
 		} else {
-			streamF := func() {
+			streamF := func(errChan chan error) {
 				selected := p.sWrap.CopySelection()
 				for index := range selected {
 					var episode *tohru.Episode
@@ -160,7 +160,7 @@ func (p *AnimePage) setHandlers(cancel context.CancelFunc) {
 				modal := okModal(utils.InfoModalID, "Stream Starting...\n this operation may take few minutes based on internet connection and mpv launch \nif error happened it will be reported")
 				ShowModal(utils.InfoModalID, modal)
 			}
-			dwnF := func() {
+			dwnF := func(errChan chan error) {
 				selected := p.sWrap.CopySelection()
 				for index := range selected {
 					var episode *tohru.Episode
@@ -179,18 +179,19 @@ func (p *AnimePage) setHandlers(cancel context.CancelFunc) {
 				modal := okModal(utils.InfoModalID, info)
 				ShowModal(utils.InfoModalID, modal)
 			}
-			modal := watchOrDownloadModal(utils.WatchOrDownloadModalID, "Select Option", streamF, dwnF)
+			modal := watchOrDownloadModal(utils.WatchOrDownloadModalID, "Select Option", streamF, dwnF, errChan)
 			ShowModal(utils.WatchOrDownloadModalID, modal)
 		}
 		go func(errChan chan error) {
-			select {
-			case err := <-errChan:
-				log.Println(err)
-				core.App.TView.QueueUpdateDraw(func() {
-					modal := okModal(utils.GenericAPIErrorModalID, "Error getting anime episodes.\nCheck log for details.")
-					ShowModal(utils.GenericAPIErrorModalID, modal)
-				})
-			default:
+			for {
+				select {
+				case err := <-errChan:
+					log.Println(err)
+					core.App.TView.QueueUpdateDraw(func() {
+						modal := okModal(utils.GenericAPIErrorModalID, err.Error())
+						ShowModal(utils.GenericAPIErrorModalID, modal)
+					})
+				}
 			}
 		}(errChan)
 	})
