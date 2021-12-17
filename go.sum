@@ -6,8 +6,8 @@ github.com/gdamore/tcell/v2 v2.4.1-0.20210905002822-f057f0a857a1 h1:QqwPZCwh/k1u
 github.com/gdamore/tcell/v2 v2.4.1-0.20210905002822-f057f0a857a1/go.mod h1:Az6Jt+M5idSED2YPGtwnfJV0kXohgdCBPmHGSYc1r04=
 github.com/khatibomar/kobayashi v0.0.0-20211216065057-5e57f7c1613e h1:G6TIADzRciDnkdLERDnPGaquhLQJkkLf8B/CcJNA/c8=
 github.com/khatibomar/kobayashi v0.0.0-20211216065057-5e57f7c1613e/go.mod h1:psne+LyxlXje2KHHiNsuiPADcKqhztsy+cuGWN+Y8yU=
-github.com/khatibomar/tohru v0.0.0-20211216150552-55f82355135e h1:DUWShEGqJjEo7fOqROKxC96bWFqLEw9w53+1mCcXjbQ=
-github.com/khatibomar/tohru v0.0.0-20211216150552-55f82355135e/go.mod h1:YtA+t2qCDQkkOL0F+QBkaiy5bLd1P7ah/yVs6kZlETo=
+github.com/khatibomar/tohru v0.0.0-20211217085241-6c7bb681db24 h1:innFxC3UQBWxgdZX9/2FxgVVCnNRiGS6NBWEUqPEA8U=
+github.com/khatibomar/tohru v0.0.0-20211217085241-6c7bb681db24/go.mod h1:YtA+t2qCDQkkOL0F+QBkaiy5bLd1P7ah/yVs6kZlETo=
 github.com/lucasb-eyer/go-colorful v1.2.0 h1:1nnpGOrhyZZuNyfu1QjKiUICQ74+3FNCN69Aj6K7nkY=
 github.com/lucasb-eyer/go-colorful v1.2.0/go.mod h1:R4dSotOR9KMtayYi1e77YzuveK+i7ruzyGqttikkLy0=
 github.com/mattn/go-runewidth v0.0.13 h1:lTGmDsbAYt5DmK6OnoV7EuIF1wEIFAcxld6ypU4OSgU=

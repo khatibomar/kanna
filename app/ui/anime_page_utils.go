@@ -26,7 +26,7 @@ func (p *AnimePage) saveEpisode(episode *tohru.Episode, errChan chan error) {
 		return
 	}
 	filePath := p.getDownloadPath(episode)
-	filename := fmt.Sprintf("%s%s.%s", filePath, episode.EpisodeName, "mp4")
+	filename := fmt.Sprintf("%s%s.%s", filePath, removeRestrictedChars(episode.EpisodeName), "mp4")
 
 	err = os.MkdirAll(filePath, 0777)
 	if err != nil {
@@ -84,15 +84,19 @@ func getDwnLink(episode *tohru.Episode) (string, error) {
 
 // getDownloadFolder : Get the download folder for an episode.
 func (p *AnimePage) getDownloadPath(episode *tohru.Episode) string {
-	animeName := p.Anime.AnimeName
+	animeName := removeRestrictedChars(p.Anime.AnimeName)
 	episodeNumber := episode.EpisodeNumber
 
 	// Remove invalid characters from the folder name
-	restricted := []string{"<", ">", ":", "/", "|", "?", "*", "\"", "\\", ".", ",", " "}
-	for _, c := range restricted {
-		animeName = strings.ReplaceAll(animeName, c, "_")
-	}
 	fullPath := path.Join(core.App.Config.DownloadDir, animeName, episodeNumber) + "/"
 
 	return fullPath
+}
+
+func removeRestrictedChars(s string) string {
+	restricted := []string{"<", ">", ":", "/", "|", "?", "*", "\"", "\\", ".", ",", " "}
+	for _, c := range restricted {
+		s = strings.ReplaceAll(s, c, "_")
+	}
+	return s
 }

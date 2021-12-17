@@ -54,7 +54,7 @@ func confirmModal(id, text, confirmButton string, f func()) *tview.Modal {
 // confirmModal : Creates a new modal for confirmation.
 // The user specifies the function to do when confirming.
 // If the user cancels, then the modal is removed from the view.
-func watchOrDownloadModal(id, text string, stream func(), download func()) *tview.Modal {
+func watchOrDownloadModal(id, text string, stream func(chan error), download func(chan error), errChan chan error) *tview.Modal {
 	// Create new modal
 	modal := tview.NewModal()
 
@@ -65,9 +65,9 @@ func watchOrDownloadModal(id, text string, stream func(), download func()) *tvie
 		SetFocus(0).
 		SetDoneFunc(func(buttonIndex int, _ string) {
 			if buttonIndex == 0 {
-				stream()
+				stream(errChan)
 			} else if buttonIndex == 1 {
-				download()
+				download(errChan)
 			}
 			log.Printf("Removing %s modal\n", id)
 			core.App.PageHolder.RemovePage(id)
