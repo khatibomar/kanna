@@ -15,18 +15,19 @@ const (
 // HelpPage : This struct contains the grid for the help page.
 type HelpPage struct {
 	Grid *tview.Grid
+	Core *core.Kanna
 }
 
 // ShowHelpPage : Make the app show the help page.
-func ShowHelpPage() {
-	helpPage := newHelpPage()
+func ShowHelpPage(core *core.Kanna) {
+	helpPage := newHelpPage(core)
 
-	core.App.TView.SetFocus(helpPage.Grid)
-	core.App.PageHolder.AddPage(utils.HelpPageID, helpPage.Grid, true, true)
+	core.TView.SetFocus(helpPage.Grid)
+	core.PageHolder.AddPage(utils.HelpPageID, helpPage.Grid, true, true)
 }
 
 // newHelpPage : Creates a new help page.
-func newHelpPage() *HelpPage {
+func newHelpPage(core *core.Kanna) *HelpPage {
 	formatString := fmt.Sprintf("%%-%ds:%%%ds\n", padding, padding)
 	// Set up the help text.
 	helpText := "Keyboard Mappings\n" +
@@ -59,6 +60,7 @@ func newHelpPage() *HelpPage {
 
 	helpPage := &HelpPage{
 		Grid: grid,
+		Core: core,
 	}
 	helpPage.setHandlers()
 

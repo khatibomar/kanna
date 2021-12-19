@@ -10,26 +10,23 @@ import (
 )
 
 func Start() {
-	core.App = &core.Kanna{
+	core := &core.Kanna{
 		Client:     &tohru.TohruClient{},
 		TView:      tview.NewApplication(),
 		PageHolder: tview.NewPages(),
 	}
-	core.App.Initialise()
-	cfg := tohru.NewConfig(core.App.Config.ClientID, core.App.Config.ClientSecret)
-	core.App.Client = tohru.NewTohruClient(cfg)
+	core.Initialise()
+	cfg := tohru.NewConfig(core.Config.ClientID, core.Config.ClientSecret)
+	core.Client = tohru.NewTohruClient(cfg)
 
-	ui.ShowMainPage()
+	ui.ShowMainPage(core)
 	log.Println("Initialised starting screen.")
-	ui.SetUniversalHandlers()
+	ui.SetUniversalHandlers(core)
 
 	log.Println("Running app...")
-	if err := core.App.TView.Run(); err != nil {
+	if err := core.TView.Run(); err != nil {
 		log.Println(err)
 		return
 	}
-}
-
-func Shutdown() {
-	core.App.Shutdown()
+	defer core.Shutdown()
 }

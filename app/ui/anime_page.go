@@ -28,31 +28,32 @@ type AnimePage struct {
 	Grid  *tview.Grid
 	Info  *tview.TextView
 	Table *tview.Table
+	Core  *core.Kanna
 
 	sWrap *utils.SelectorWrapper
 	cWrap *utils.ContextWrapper // For context cancellation.
 }
 
 // ShowAnimePage : Make the app show the anime page.
-func ShowAnimePage(anime *tohru.Anime) {
+func ShowAnimePage(core *core.Kanna, anime *tohru.Anime) {
 	id, err := strconv.Atoi(anime.AnimeID)
 	if err != nil {
 		log.Println(err)
 		return
 	}
-	animeDetails, err := core.App.Client.AnimeService.GetAnimeDetails(id)
+	animeDetails, err := core.Client.AnimeService.GetAnimeDetails(id)
 	if err != nil {
 		log.Println(err)
 		return
 	}
-	animePage := newAnimePage(&animeDetails)
+	animePage := newAnimePage(core, &animeDetails)
 
-	core.App.TView.SetFocus(animePage.Grid)
-	core.App.PageHolder.AddAndSwitchToPage(utils.AnimePageID, animePage.Grid, true)
+	core.TView.SetFocus(animePage.Grid)
+	core.PageHolder.AddAndSwitchToPage(utils.AnimePageID, animePage.Grid, true)
 }
 
 // newAnimePage : Creates a new anime page.
-func newAnimePage(anime *tohru.AnimeDetails) *AnimePage {
+func newAnimePage(core *core.Kanna, anime *tohru.AnimeDetails) *AnimePage {
 	var dimensions []int
 	for i := 0; i < 15; i++ {
 		dimensions = append(dimensions, -1)
@@ -120,6 +121,7 @@ func newAnimePage(anime *tohru.AnimeDetails) *AnimePage {
 			Ctx:    ctx,
 			Cancel: cancel,
 		},
+		Core: core,
 	}
 
 	// Set up values
@@ -149,7 +151,7 @@ func (p *AnimePage) setAnimeInfo() {
 	infoText := fmt.Sprintf("Title: %s\n\nStatus: %s\n\nDescription:\n%s",
 		title, status, desc)
 
-	core.App.TView.QueueUpdateDraw(func() {
+	p.Core.TView.QueueUpdateDraw(func() {
 		p.Info.SetText(infoText)
 	})
 }
@@ -163,7 +165,7 @@ func (p *AnimePage) setEpisodesTable() {
 	time.Sleep(loadDelay)
 	defer cancel()
 
-	core.App.TView.QueueUpdateDraw(func() {
+	p.Core.TView.QueueUpdateDraw(func() {
 		loadingCell := tview.NewTableCell("Loading...").SetSelectable(false)
 		p.Table.SetCell(1, 1, loadingCell)
 	})
@@ -178,13 +180,13 @@ func (p *AnimePage) setEpisodesTable() {
 			return
 		}
 		log.Println(fmt.Sprintf("Error getting anime episodes: %s", err.Error()))
-		core.App.TView.QueueUpdateDraw(func() {
-			modal := okModal(utils.GenericAPIErrorModalID, "Error getting anime episodes.\nCheck log for details.")
-			ShowModal(utils.GenericAPIErrorModalID, modal)
+		p.Core.TView.QueueUpdateDraw(func() {
+			modal := okModal(p.Core, utils.GenericAPIErrorModalID, "Error getting anime episodes.\nCheck log for details.")
+			ShowModal(p.Core, utils.GenericAPIErrorModalID, modal)
 		})
 		return
 	} else if len(episodes) == 0 {
-		core.App.TView.QueueUpdateDraw(func() {
+		p.Core.TView.QueueUpdateDraw(func() {
 			noResultsCell := tview.NewTableCell("No episodes!").SetSelectable(false)
 			p.Table.SetCell(1, 1, noResultsCell)
 		})
@@ -199,15 +201,15 @@ func (p *AnimePage) setEpisodesTable() {
 		}
 		anID, _ := strconv.Atoi(p.Anime.AnimeID)
 		epId, _ := strconv.Atoi(episodes[index].EpisodeID)
-		episode, err := core.App.Client.EpisodeService.GetEpisodeDetails(anID, epId)
+		episode, err := p.Core.Client.EpisodeService.GetEpisodeDetails(anID, epId)
 		if err != nil {
 			if strings.Contains(err.Error(), contextCancelledError) {
 				return
 			}
 			log.Println(fmt.Sprintf("Error getting anime episodes: %s", err.Error()))
-			core.App.TView.QueueUpdateDraw(func() {
-				modal := okModal(utils.GenericAPIErrorModalID, "Error getting anime episodes.\nCheck log for details.")
-				ShowModal(utils.GenericAPIErrorModalID, modal)
+			p.Core.TView.QueueUpdateDraw(func() {
+				modal := okModal(p.Core, utils.GenericAPIErrorModalID, "Error getting anime episodes.\nCheck log for details.")
+				ShowModal(p.Core, utils.GenericAPIErrorModalID, modal)
 			})
 			return
 		}
@@ -223,7 +225,7 @@ func (p *AnimePage) setEpisodesTable() {
 		// Chapter download status
 		var downloadStatus string
 		// Check for the presence of the download folder.
-		pth := p.getDownloadPath(&episode)
+		pth := p.getDownloadPath(&episode, p.Core.Config.DownloadDir)
 		if _, err = os.Stat(pth); err == nil {
 			downloadStatus = "Y"
 		}
@@ -242,7 +244,7 @@ func (p *AnimePage) setEpisodesTable() {
 
 		p.Table.SetCell(index+1, 4, readCell)
 	}
-	core.App.TView.QueueUpdateDraw(func() {
+	p.Core.TView.QueueUpdateDraw(func() {
 		p.Table.Select(1, 0)
 		p.Table.ScrollToBeginning()
 	})
@@ -258,7 +260,7 @@ func (p *AnimePage) getAllEpisodes(ctx context.Context, animeID int) ([]tohru.Ep
 		if p.cWrap.ToCancel(ctx) {
 			return []tohru.Episode{}, fmt.Errorf(contextCancelledError)
 		}
-		list, err := core.App.Client.EpisodeService.GetEpisodesList(animeID)
+		list, err := p.Core.Client.EpisodeService.GetEpisodesList(animeID)
 		if err != nil {
 			return []tohru.Episode{}, err
 		}

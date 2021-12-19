@@ -8,8 +8,6 @@ import (
 	"github.com/rivo/tview"
 )
 
-var App *Kanna
-
 type Kanna struct {
 	Client *tohru.TohruClient
 
@@ -38,8 +36,8 @@ func (t *Kanna) Initialise() error {
 }
 
 func (t *Kanna) Shutdown() {
-	App.TView.Sync()
-	App.TView.Stop()
+	t.TView.Sync()
+	t.TView.Stop()
 
 	if err := t.stopLogging(); err != nil {
 		log.Println("Error while closing log file!")

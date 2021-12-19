@@ -14,6 +14,7 @@ import (
 type SearchPage struct {
 	MainPage
 	Form *tview.Form
+	Core *core.Kanna
 }
 
 // SearchParams : Convenience struct to hold parameters for setting up a search table.
@@ -22,16 +23,16 @@ type SearchParams struct {
 }
 
 // ShowSearchPage : Make the app show the search page.
-func ShowSearchPage() {
+func ShowSearchPage(core *core.Kanna) {
 	// Create the new search page
-	searchPage := newSearchPage()
+	searchPage := newSearchPage(core)
 
-	core.App.PageHolder.AddAndSwitchToPage(utils.SearchPageID, searchPage.Grid, true)
-	core.App.TView.SetFocus(searchPage.Form)
+	core.PageHolder.AddAndSwitchToPage(utils.SearchPageID, searchPage.Grid, true)
+	core.TView.SetFocus(searchPage.Form)
 }
 
 // newSearchPage : Creates a new SearchPage.
-func newSearchPage() *SearchPage {
+func newSearchPage(core *core.Kanna) *SearchPage {
 	var dimensions []int
 	for i := 0; i < 15; i++ {
 		dimensions = append(dimensions, -1)
@@ -76,8 +77,10 @@ func newSearchPage() *SearchPage {
 				Ctx:    ctx,
 				Cancel: cancel,
 			},
+			Core: core,
 		},
 		Form: search,
+		Core: core,
 	}
 
 	// Add form fields
@@ -88,7 +91,7 @@ func newSearchPage() *SearchPage {
 			searchPage.setSearchTable(searchTerm)
 
 			// Send focus to the search result table.
-			core.App.TView.SetFocus(searchPage.Table)
+			core.TView.SetFocus(searchPage.Table)
 		}).
 		SetFocus(0) // Set focus to the title field.
 

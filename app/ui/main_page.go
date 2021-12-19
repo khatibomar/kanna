@@ -25,22 +25,23 @@ type MainPage struct {
 	Grid          *tview.Grid
 	Table         *tview.Table
 	CurrentOffset int
+	Core          *core.Kanna
 
 	cWrap *utils.ContextWrapper // For context cancellation.
 }
 
 // ShowMainPage : Make the app show the main page.
-func ShowMainPage() {
+func ShowMainPage(core *core.Kanna) {
 	// Create the new main page
 	log.Println("Creating new main page...")
-	mainPage := newMainPage()
+	mainPage := newMainPage(core)
 
-	core.App.TView.SetFocus(mainPage.Grid)
-	core.App.PageHolder.AddAndSwitchToPage(utils.MainPageID, mainPage.Grid, true)
+	core.TView.SetFocus(mainPage.Grid)
+	core.PageHolder.AddAndSwitchToPage(utils.MainPageID, mainPage.Grid, true)
 }
 
 // newMainPage : Creates a new main page.
-func newMainPage() *MainPage {
+func newMainPage(core *core.Kanna) *MainPage {
 	var dimensions []int
 	for i := 0; i < 15; i++ {
 		dimensions = append(dimensions, -1)
@@ -71,6 +72,7 @@ func newMainPage() *MainPage {
 			Ctx:    ctx,
 			Cancel: cancel,
 		},
+		Core: core,
 	}
 
 	go mainPage.setTableGrid()
@@ -80,7 +82,7 @@ func newMainPage() *MainPage {
 
 func (p *MainPage) setTableGrid() {
 	log.Println("Setting anime grid...")
-	core.App.TView.QueueUpdateDraw(func() {
+	p.Core.TView.QueueUpdateDraw(func() {
 		name, _ := os.Hostname()
 		p.Grid.SetTitle(fmt.Sprintf("Welcome to Kanna, [yellow]%s!", name))
 	})
@@ -100,7 +102,7 @@ func (p *MainPage) setLatestUpdatedAnimeTable(searchParams *SearchParams) {
 		tableTitle = "Search Results"
 	}
 
-	core.App.TView.QueueUpdateDraw(func() {
+	p.Core.TView.QueueUpdateDraw(func() {
 		// Clear current entries
 		p.Table.Clear()
 
@@ -134,22 +136,22 @@ func (p *MainPage) setLatestUpdatedAnimeTable(searchParams *SearchParams) {
 	var list []tohru.Anime
 	var err error
 	if searchParams != nil {
-		list, err = core.App.Client.AnimeService.SearchByName(0, limit, searchParams.name, tohru.AnimeYearAsc)
+		list, err = p.Core.Client.AnimeService.SearchByName(0, limit, searchParams.name, tohru.AnimeYearAsc)
 	} else {
-		list, err = core.App.Client.AnimeService.GetLatestAnimes(p.CurrentOffset, limit)
+		list, err = p.Core.Client.AnimeService.GetLatestAnimes(p.CurrentOffset, limit)
 	}
 	if err != nil {
 		log.Println(err.Error())
-		core.App.TView.QueueUpdateDraw(func() {
-			modal := okModal(utils.GenericAPIErrorModalID, "Error getting anime list.\nCheck logs for details.")
-			ShowModal(utils.GenericAPIErrorModalID, modal)
+		p.Core.TView.QueueUpdateDraw(func() {
+			modal := okModal(p.Core, utils.GenericAPIErrorModalID, "Error getting anime list.\nCheck logs for details.")
+			ShowModal(p.Core, utils.GenericAPIErrorModalID, modal)
 		})
 		return
 	}
 
 	// Update table title.
 	page, first, last := p.calculatePaginationData()
-	core.App.TView.QueueUpdateDraw(func() {
+	p.Core.TView.QueueUpdateDraw(func() {
 		p.Table.SetTitle(fmt.Sprintf("%s. Page %d (%d-%d).", tableTitle, page, first, last))
 	})
 
@@ -175,7 +177,7 @@ func (p *MainPage) setLatestUpdatedAnimeTable(searchParams *SearchParams) {
 			SetCell(index+1, 1, descCell).
 			SetCell(index+1, 2, tagCell)
 	}
-	core.App.TView.QueueUpdateDraw(func() {
+	p.Core.TView.QueueUpdateDraw(func() {
 		p.Table.Select(1, 0)
 		p.Table.ScrollToBeginning()
 	})

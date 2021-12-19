@@ -13,38 +13,38 @@ import (
 )
 
 // SetUniversalHandlers : Set universal inputs for the app.
-func SetUniversalHandlers() {
+func SetUniversalHandlers(core *core.Kanna) {
 	// Enable mouse inputs.
-	core.App.TView.EnableMouse(true)
+	core.TView.EnableMouse(true)
 
 	// Set universal keybindings
-	core.App.TView.SetInputCapture(func(event *tcell.EventKey) *tcell.EventKey {
+	core.TView.SetInputCapture(func(event *tcell.EventKey) *tcell.EventKey {
 		switch event.Key() {
 		case tcell.KeyCtrlK: // Help page.
-			ctrlKInput()
+			ctrlKInput(core)
 		case tcell.KeyCtrlS: // Search page.
-			ctrlSInput()
+			ctrlSInput(core)
 		case tcell.KeyCtrlC: // Ctrl-C interrupt.
-			ctrlCInput()
+			ctrlCInput(core)
 		}
 		return event // Forward the event to the actual current primitive.
 	})
 }
 
 // ctrlKInput : Shows the help page to the user.
-func ctrlKInput() {
-	ShowHelpPage()
+func ctrlKInput(core *core.Kanna) {
+	ShowHelpPage(core)
 }
 
 // ctrlSInput : Shows search page to the user.
-func ctrlSInput() {
-	ShowSearchPage()
+func ctrlSInput(core *core.Kanna) {
+	ShowSearchPage(core)
 }
 
 // ctrlCInput : Sends an interrupt signal to the application to stop.
-func ctrlCInput() {
+func ctrlCInput(core *core.Kanna) {
 	log.Println("TView stopped by Ctrl-C interrupt.")
-	core.App.TView.Stop()
+	core.TView.Stop()
 }
 
 // setHandlers : Set handlers for the main page.
@@ -56,8 +56,8 @@ func (p *MainPage) setHandlers(cancel context.CancelFunc, searchParams *SearchPa
 		// User wants to go to the next offset page.
 		case tcell.KeyCtrlF:
 			if p.CurrentOffset+limit >= maxOffset {
-				modal := okModal(utils.OffsetErrorModalID, "No more results to show.")
-				ShowModal(utils.OffsetErrorModalID, modal)
+				modal := okModal(p.Core, utils.OffsetErrorModalID, "No more results to show.")
+				ShowModal(p.Core, utils.OffsetErrorModalID, modal)
 			} else {
 				// Update the new offset
 				p.CurrentOffset += limit
@@ -65,8 +65,8 @@ func (p *MainPage) setHandlers(cancel context.CancelFunc, searchParams *SearchPa
 			reload = true
 		case tcell.KeyCtrlB:
 			if p.CurrentOffset == 0 {
-				modal := okModal(utils.OffsetErrorModalID, "Already on first page.")
-				ShowModal(utils.OffsetErrorModalID, modal)
+				modal := okModal(p.Core, utils.OffsetErrorModalID, "Already on first page.")
+				ShowModal(p.Core, utils.OffsetErrorModalID, modal)
 			}
 			reload = true
 			// Update the new offset
@@ -92,7 +92,7 @@ func (p *MainPage) setHandlers(cancel context.CancelFunc, searchParams *SearchPa
 		if animeRef == nil {
 			return
 		} else if anime, ok := animeRef.(*tohru.Anime); ok {
-			ShowAnimePage(anime)
+			ShowAnimePage(p.Core, anime)
 		}
 	})
 }
@@ -103,7 +103,7 @@ func (p *HelpPage) setHandlers() {
 	p.Grid.SetInputCapture(func(event *tcell.EventKey) *tcell.EventKey {
 		switch event.Key() {
 		case tcell.KeyEsc:
-			core.App.PageHolder.RemovePage(utils.HelpPageID)
+			p.Core.PageHolder.RemovePage(utils.HelpPageID)
 		}
 		return event
 	})
@@ -116,7 +116,7 @@ func (p *AnimePage) setHandlers(cancel context.CancelFunc) {
 		switch event.Key() {
 		case tcell.KeyEsc:
 			cancel()
-			core.App.PageHolder.RemovePage(utils.AnimePageID)
+			p.Core.PageHolder.RemovePage(utils.AnimePageID)
 		}
 		return event
 	})
@@ -133,14 +133,14 @@ func (p *AnimePage) setHandlers(cancel context.CancelFunc) {
 		infoChan := make(chan string)
 
 		if len(p.sWrap.Selection) > 1 {
-			modal := confirmModal(utils.DownloadModalID, "Download episode(s)?", "Yes", func() {
+			modal := confirmModal(p.Core, utils.DownloadModalID, "Download episode(s)?", "Yes", func() {
 				// Create a copy of the Selection.
 				selected := p.sWrap.CopySelection()
 				// Download selected chapters.
 				// go p.downloadChapters(selected, 0)
 				log.Println(selected)
 			})
-			ShowModal(utils.DownloadModalID, modal)
+			ShowModal(p.Core, utils.DownloadModalID, modal)
 		} else {
 			streamF := func(errChan chan error, infoChan chan string) {
 				selected := p.sWrap.CopySelection()
@@ -159,8 +159,8 @@ func (p *AnimePage) setHandlers(cancel context.CancelFunc) {
 				for index := range selected {
 					p.sWrap.RemoveSelection(index)
 				}
-				modal := okModal(utils.InfoModalID, "Stream Starting...\n this operation may take few minutes based on internet connection and mpv launch \nif error happened it will be reported")
-				ShowModal(utils.InfoModalID, modal)
+				modal := okModal(p.Core, utils.InfoModalID, "Stream Starting...\n this operation may take few minutes based on internet connection and mpv launch \nif error happened it will be reported")
+				ShowModal(p.Core, utils.InfoModalID, modal)
 			}
 			dwnF := func(errChan chan error, infoChan chan string) {
 				selected := p.sWrap.CopySelection()
@@ -177,28 +177,28 @@ func (p *AnimePage) setHandlers(cancel context.CancelFunc) {
 				for index := range selected {
 					p.sWrap.RemoveSelection(index)
 				}
-				info := fmt.Sprintf("Download Starting... \nyou can find file in %s\nif error happened it will be reported", core.App.Config.DownloadDir)
-				modal := okModal(utils.InfoModalID, info)
-				ShowModal(utils.InfoModalID, modal)
+				info := fmt.Sprintf("Download Starting... \nyou can find file in %s\nif error happened it will be reported", p.Core.Config.DownloadDir)
+				modal := okModal(p.Core, utils.InfoModalID, info)
+				ShowModal(p.Core, utils.InfoModalID, modal)
 			}
-			modal := watchOrDownloadModal(utils.WatchOrDownloadModalID, "Select Option", streamF, dwnF, errChan, infoChan)
-			ShowModal(utils.WatchOrDownloadModalID, modal)
+			modal := watchOrDownloadModal(p.Core, utils.WatchOrDownloadModalID, "Select Option", streamF, dwnF, errChan, infoChan)
+			ShowModal(p.Core, utils.WatchOrDownloadModalID, modal)
 		}
 		go func(errChan chan error, infoChan chan string) {
 			for {
 				select {
 				case err := <-errChan:
 					log.Println(err)
-					core.App.TView.QueueUpdateDraw(func() {
-						modal := okModal(utils.GenericAPIErrorModalID, err.Error())
-						ShowModal(utils.GenericAPIErrorModalID, modal)
+					p.Core.TView.QueueUpdateDraw(func() {
+						modal := okModal(p.Core, utils.GenericAPIErrorModalID, err.Error())
+						ShowModal(p.Core, utils.GenericAPIErrorModalID, modal)
 					})
 
 				case info := <-infoChan:
 					log.Println(info)
-					core.App.TView.QueueUpdateDraw(func() {
-						modal := okModal(utils.InfoModalID, info)
-						ShowModal(utils.InfoModalID, modal)
+					p.Core.TView.QueueUpdateDraw(func() {
+						modal := okModal(p.Core, utils.InfoModalID, info)
+						ShowModal(p.Core, utils.InfoModalID, modal)
 					})
 				}
 			}
@@ -232,9 +232,9 @@ func (p *SearchPage) setHandlers() {
 	p.Grid.SetInputCapture(func(event *tcell.EventKey) *tcell.EventKey {
 		switch event.Key() {
 		case tcell.KeyEsc: // When user presses ESC, then we remove the Search page.
-			core.App.PageHolder.RemovePage(utils.SearchPageID)
+			p.Core.PageHolder.RemovePage(utils.SearchPageID)
 		case tcell.KeyTab: // When user presses Tab, they are sent back to the search form.
-			core.App.TView.SetFocus(p.Form)
+			p.Core.TView.SetFocus(p.Form)
 		}
 		return event
 	})
@@ -243,7 +243,7 @@ func (p *SearchPage) setHandlers() {
 	p.Form.SetInputCapture(func(event *tcell.EventKey) *tcell.EventKey {
 		switch event.Key() {
 		case tcell.KeyDown: // When user presses KeyDown, they are sent to the search results table.
-			core.App.TView.SetFocus(p.Table)
+			p.Core.TView.SetFocus(p.Table)
 		}
 		return event
 	})

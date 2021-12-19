@@ -10,7 +10,6 @@ import (
 	"strings"
 
 	"github.com/cavaliercoder/grab"
-	"github.com/khatibomar/kanna/app/core"
 	"github.com/khatibomar/tohru"
 )
 
@@ -20,12 +19,12 @@ const (
 
 // save: Save a Episode.
 func (p *AnimePage) saveEpisode(episode *tohru.Episode, errChan chan error, infoChan chan string) {
-	url, err := getDwnLink(episode)
+	url, err := getDwnLink(episode, p.Core.Client.EpisodeService.GetFirstDirectDownloadLink)
 	if err != nil {
 		errChan <- err
 		return
 	}
-	filePath := p.getDownloadPath(episode)
+	filePath := p.getDownloadPath(episode, p.Core.Config.DownloadDir)
 	fullPath := fmt.Sprintf("%s%s.%s", filePath, removeRestrictedChars(episode.EpisodeName), "mp4")
 
 	err = os.MkdirAll(filePath, 0777)
@@ -51,7 +50,7 @@ func (p *AnimePage) saveEpisode(episode *tohru.Episode, errChan chan error, info
 
 // save: Save a Episode.
 func (p *AnimePage) streamEpisode(episode *tohru.Episode, errChan chan error) {
-	url, err := getDwnLink(episode)
+	url, err := getDwnLink(episode, p.Core.Client.EpisodeService.GetFirstDirectDownloadLink)
 	if err != nil {
 		errChan <- err
 		return
@@ -63,7 +62,7 @@ func (p *AnimePage) streamEpisode(episode *tohru.Episode, errChan chan error) {
 	}
 }
 
-func getDwnLink(episode *tohru.Episode) (string, error) {
+func getDwnLink(episode *tohru.Episode, getFirstDwnLinkF func(string, int) (string, error)) (string, error) {
 	if len(episode.EpisodeUrls) == 0 {
 		return "", fmt.Errorf("No Download links available")
 	}
@@ -84,7 +83,7 @@ func getDwnLink(episode *tohru.Episode) (string, error) {
 	if err != nil {
 		return "", err
 	}
-	url, err := core.App.Client.EpisodeService.GetFirstDirectDownloadLink(animeSpecialName, nb)
+	url, err := getFirstDwnLinkF(animeSpecialName, nb)
 	if err != nil {
 		return "", err
 	}
@@ -92,12 +91,12 @@ func getDwnLink(episode *tohru.Episode) (string, error) {
 }
 
 // getDownloadFolder : Get the download folder for an episode.
-func (p *AnimePage) getDownloadPath(episode *tohru.Episode) string {
+func (p *AnimePage) getDownloadPath(episode *tohru.Episode, dwnDir string) string {
 	animeName := removeRestrictedChars(p.Anime.AnimeName)
 	episodeNumber := episode.EpisodeNumber
 
 	// Remove invalid characters from the folder name
-	fullPath := path.Join(core.App.Config.DownloadDir, animeName, episodeNumber) + "/"
+	fullPath := path.Join(dwnDir, animeName, episodeNumber) + "/"
 
 	return fullPath
 }
