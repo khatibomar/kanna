@@ -19,23 +19,32 @@ const (
 )
 
 // save: Save a Episode.
-func (p *AnimePage) saveEpisode(episode *tohru.Episode, errChan chan error) {
+func (p *AnimePage) saveEpisode(episode *tohru.Episode, errChan chan error, infoChan chan string) {
 	url, err := getDwnLink(episode)
 	if err != nil {
 		errChan <- err
 		return
 	}
 	filePath := p.getDownloadPath(episode)
-	filename := fmt.Sprintf("%s%s.%s", filePath, removeRestrictedChars(episode.EpisodeName), "mp4")
+	fullPath := fmt.Sprintf("%s%s.%s", filePath, removeRestrictedChars(episode.EpisodeName), "mp4")
 
 	err = os.MkdirAll(filePath, 0777)
 	if err != nil {
 		errChan <- err
 		return
 	}
-	_, err = grab.Get(filename, url)
+	resp, err := grab.Get(fullPath, url)
 	if err != nil {
 		errChan <- err
+		return
+	}
+	if resp.Err() != nil {
+		errChan <- resp.Err()
+		return
+	}
+	if resp.IsComplete() {
+		infoChan <- fmt.Sprintf("Download is complete and file can be found at: %s", fullPath)
+		return
 	}
 
 }

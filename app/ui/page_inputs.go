@@ -130,6 +130,8 @@ func (p *AnimePage) setHandlers(cancel context.CancelFunc) {
 		log.Println("Creating and showing confirm download modal...")
 
 		errChan := make(chan error)
+		infoChan := make(chan string)
+
 		if len(p.sWrap.Selection) > 1 {
 			modal := confirmModal(utils.DownloadModalID, "Download episode(s)?", "Yes", func() {
 				// Create a copy of the Selection.
@@ -140,7 +142,7 @@ func (p *AnimePage) setHandlers(cancel context.CancelFunc) {
 			})
 			ShowModal(utils.DownloadModalID, modal)
 		} else {
-			streamF := func(errChan chan error) {
+			streamF := func(errChan chan error, infoChan chan string) {
 				selected := p.sWrap.CopySelection()
 				for index := range selected {
 					var episode *tohru.Episode
@@ -160,7 +162,7 @@ func (p *AnimePage) setHandlers(cancel context.CancelFunc) {
 				modal := okModal(utils.InfoModalID, "Stream Starting...\n this operation may take few minutes based on internet connection and mpv launch \nif error happened it will be reported")
 				ShowModal(utils.InfoModalID, modal)
 			}
-			dwnF := func(errChan chan error) {
+			dwnF := func(errChan chan error, infoChan chan string) {
 				selected := p.sWrap.CopySelection()
 				for index := range selected {
 					var episode *tohru.Episode
@@ -168,7 +170,7 @@ func (p *AnimePage) setHandlers(cancel context.CancelFunc) {
 					if episode, ok = p.Table.GetCell(index, 0).GetReference().(*tohru.Episode); !ok {
 						return
 					}
-					go p.saveEpisode(episode, errChan)
+					go p.saveEpisode(episode, errChan, infoChan)
 				}
 
 				log.Println(selected)
@@ -179,10 +181,10 @@ func (p *AnimePage) setHandlers(cancel context.CancelFunc) {
 				modal := okModal(utils.InfoModalID, info)
 				ShowModal(utils.InfoModalID, modal)
 			}
-			modal := watchOrDownloadModal(utils.WatchOrDownloadModalID, "Select Option", streamF, dwnF, errChan)
+			modal := watchOrDownloadModal(utils.WatchOrDownloadModalID, "Select Option", streamF, dwnF, errChan, infoChan)
 			ShowModal(utils.WatchOrDownloadModalID, modal)
 		}
-		go func(errChan chan error) {
+		go func(errChan chan error, infoChan chan string) {
 			for {
 				select {
 				case err := <-errChan:
@@ -191,9 +193,16 @@ func (p *AnimePage) setHandlers(cancel context.CancelFunc) {
 						modal := okModal(utils.GenericAPIErrorModalID, err.Error())
 						ShowModal(utils.GenericAPIErrorModalID, modal)
 					})
+
+				case info := <-infoChan:
+					log.Println(info)
+					core.App.TView.QueueUpdateDraw(func() {
+						modal := okModal(utils.InfoModalID, info)
+						ShowModal(utils.InfoModalID, modal)
+					})
 				}
 			}
-		}(errChan)
+		}(errChan, infoChan)
 	})
 
 	// Set table input captures.
