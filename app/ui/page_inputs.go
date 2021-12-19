@@ -2,6 +2,8 @@ package ui
 
 import (
 	"context"
+	"crypto/md5"
+	"encoding/hex"
 	"fmt"
 	"log"
 	"math"
@@ -132,25 +134,22 @@ func (p *AnimePage) setHandlers(cancel context.CancelFunc) {
 		errChan := make(chan error)
 		infoChan := make(chan string)
 
-		selected := p.sWrap.CopySelection()
-		dwnF := func(errChan chan error, infoChan chan string) {
+		dwnF := func(selected map[int]struct{}, errChan chan error, infoChan chan string) {
 			var episode *tohru.Episode
 			var ok bool
 			for index := range selected {
 				if episode, ok = p.Table.GetCell(index, 0).GetReference().(*tohru.Episode); !ok {
 					return
 				}
+				log.Printf("Downloading episode %s\n", episode.EpisodeName)
 				go p.saveEpisode(episode, errChan, infoChan)
-			}
-			for index := range selected {
-				p.sWrap.RemoveSelection(index)
 			}
 			info := fmt.Sprintf("Download Starting... \nyou can find file in %s\nif error happened it will be reported", p.Core.Config.DownloadDir)
 			modal := okModal(p.Core, utils.InfoModalID, info)
 			ShowModal(p.Core, utils.InfoModalID, modal)
 		}
 
-		streamF := func(errChan chan error, infoChan chan string) {
+		streamF := func(selected map[int]struct{}, errChan chan error, infoChan chan string) {
 			var episode *tohru.Episode
 			var ok bool
 			for index := range selected {
@@ -158,44 +157,45 @@ func (p *AnimePage) setHandlers(cancel context.CancelFunc) {
 					return
 				}
 				log.Printf("Streaming episode %s\n", episode.EpisodeName)
-				log.Println(episode.EpisodeUrls)
 				go p.streamEpisode(episode, errChan)
 			}
 
 			log.Println(selected)
-			for index := range selected {
-				p.sWrap.RemoveSelection(index)
-			}
 			modal := okModal(p.Core, utils.InfoModalID, "Stream Starting...\n this operation may take few minutes based on internet connection and mpv launch \nif error happened it will be reported")
 			ShowModal(p.Core, utils.InfoModalID, modal)
 		}
 
-		if len(p.sWrap.Selection) > 1 {
-			modal := confirmModal(p.Core, utils.DownloadModalID, "Download episode(s)?", "Yes", dwnF, errChan, infoChan)
+		selected := p.sWrap.CopySelection()
+		if len(selected) > 1 {
+			modal := confirmDownloadModal(p.Core, selected, dwnF, errChan, infoChan)
 			ShowModal(p.Core, utils.DownloadModalID, modal)
 		} else {
-			log.Println(selected)
-			for index := range selected {
-				p.sWrap.RemoveSelection(index)
-			}
-			modal := watchOrDownloadModal(p.Core, utils.WatchOrDownloadModalID, "Select Option", streamF, dwnF, errChan, infoChan)
+			modal := watchOrDownloadModal(p.Core, utils.WatchOrDownloadModalID, "Select Option", selected, streamF, dwnF, errChan, infoChan)
 			ShowModal(p.Core, utils.WatchOrDownloadModalID, modal)
 		}
+
+		// using hashing here is because if many errors or info reported
+		// at same time closing all of them because they have same ID
+		// so adding an hash will prevent that and make each okMadal
+		// have it's own unique ID
+		// TODO(khatibomar): find a lighter way to make hashes
 		go func(errChan chan error, infoChan chan string) {
 			for {
 				select {
 				case err := <-errChan:
 					log.Println(err)
 					p.Core.TView.QueueUpdateDraw(func() {
-						modal := okModal(p.Core, utils.GenericAPIErrorModalID, err.Error())
-						ShowModal(p.Core, utils.GenericAPIErrorModalID, modal)
+						hash := GetMD5Hash(err.Error())
+						modal := okModal(p.Core, utils.GenericAPIErrorModalID+hash, err.Error())
+						ShowModal(p.Core, utils.GenericAPIErrorModalID+hash, modal)
 					})
 
 				case info := <-infoChan:
 					log.Println(info)
 					p.Core.TView.QueueUpdateDraw(func() {
-						modal := okModal(p.Core, utils.InfoModalID, info)
-						ShowModal(p.Core, utils.InfoModalID, modal)
+						hash := GetMD5Hash(info)
+						modal := okModal(p.Core, utils.InfoModalID+hash, info)
+						ShowModal(p.Core, utils.InfoModalID+hash, modal)
 					})
 				}
 			}
@@ -205,8 +205,8 @@ func (p *AnimePage) setHandlers(cancel context.CancelFunc) {
 	// Set table input captures.
 	p.Table.SetInputCapture(func(event *tcell.EventKey) *tcell.EventKey {
 		switch event.Key() {
-		// case tcell.KeyCtrlE: // User selects this manga row.
-		// 	p.ctrlEInput()
+		case tcell.KeyCtrlE: // User selects this manga row.
+			p.ctrlEInput()
 		case tcell.KeyCtrlA: // User wants to toggle select All.
 			p.ctrlAInput()
 			// case tcell.KeyCtrlR: // User wants to toggle read status for Selection.
@@ -221,6 +221,16 @@ func (p *AnimePage) setHandlers(cancel context.CancelFunc) {
 func (p *AnimePage) ctrlAInput() {
 	// Toggle Selection.
 	p.markAll()
+}
+
+func (p *AnimePage) ctrlEInput() {
+	row, _ := p.Table.GetSelection()
+	// If the row is already in the Selection, we deselect. Else, we add.
+	if p.sWrap.HasSelection(row) {
+		p.markUnselected(row)
+	} else {
+		p.markSelected(row)
+	}
 }
 
 // setHandlers : Set handlers for the search page.
@@ -244,4 +254,10 @@ func (p *SearchPage) setHandlers() {
 		}
 		return event
 	})
+}
+
+func GetMD5Hash(text string) string {
+	hasher := md5.New()
+	hasher.Write([]byte(text))
+	return hex.EncodeToString(hasher.Sum(nil))
 }

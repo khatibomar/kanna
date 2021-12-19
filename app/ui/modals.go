@@ -8,6 +8,8 @@ import (
 	"github.com/rivo/tview"
 )
 
+type actionFunc func(map[int]struct{}, chan error, chan string)
+
 // ShowModal : Make the app show a modal.
 func ShowModal(core *core.Kanna, id string, modal *tview.Modal) {
 	core.TView.SetFocus(modal)
@@ -32,7 +34,7 @@ func okModal(core *core.Kanna, id, text string) *tview.Modal {
 // confirmModal : Creates a new modal for confirmation.
 // The user specifies the function to do when confirming.
 // If the user cancels, then the modal is removed from the view.
-func confirmModal(core *core.Kanna, id, text, confirmButton string, f func(chan error, chan string), errChan chan error, infoChan chan string) *tview.Modal {
+func confirmModal(core *core.Kanna, id, text, confirmButton string, f func()) *tview.Modal {
 	// Create new modal
 	modal := tview.NewModal()
 
@@ -43,7 +45,7 @@ func confirmModal(core *core.Kanna, id, text, confirmButton string, f func(chan 
 		SetFocus(0).
 		SetDoneFunc(func(buttonIndex int, _ string) {
 			if buttonIndex == 0 {
-				f(errChan, infoChan)
+				f()
 			}
 			log.Printf("Removing %s modal\n", id)
 			core.PageHolder.RemovePage(id)
@@ -51,10 +53,30 @@ func confirmModal(core *core.Kanna, id, text, confirmButton string, f func(chan 
 	return modal
 }
 
+func confirmDownloadModal(core *core.Kanna, selected map[int]struct{}, f actionFunc, errChan chan error, infoChan chan string) *tview.Modal {
+	// Create new modal
+	modal := tview.NewModal()
+
+	// Set modal attributes
+	modal.SetText("Confirm download").
+		SetBackgroundColor(utils.ModalColor).
+		AddButtons([]string{"Download", "Cancel"}).
+		SetFocus(0).
+		SetDoneFunc(func(buttonIndex int, _ string) {
+			if buttonIndex == 0 {
+				f(selected, errChan, infoChan)
+			}
+			log.Printf("Removing %s modal\n", utils.DownloadModalID)
+			core.PageHolder.RemovePage(utils.DownloadModalID)
+		})
+	return modal
+}
+
 // confirmModal : Creates a new modal for confirmation.
 // The user specifies the function to do when confirming.
 // If the user cancels, then the modal is removed from the view.
-func watchOrDownloadModal(core *core.Kanna, id, text string, stream func(chan error, chan string), download func(chan error, chan string), errChan chan error, infoChan chan string) *tview.Modal {
+
+func watchOrDownloadModal(core *core.Kanna, id, text string, selected map[int]struct{}, stream actionFunc, download actionFunc, errChan chan error, infoChan chan string) *tview.Modal {
 	// Create new modal
 	modal := tview.NewModal()
 
@@ -65,9 +87,9 @@ func watchOrDownloadModal(core *core.Kanna, id, text string, stream func(chan er
 		SetFocus(0).
 		SetDoneFunc(func(buttonIndex int, _ string) {
 			if buttonIndex == 0 {
-				stream(errChan, infoChan)
+				stream(selected, errChan, infoChan)
 			} else if buttonIndex == 1 {
-				download(errChan, infoChan)
+				download(selected, errChan, infoChan)
 			}
 			log.Printf("Removing %s modal\n", id)
 			core.PageHolder.RemovePage(id)
