@@ -132,54 +132,51 @@ func (p *AnimePage) setHandlers(cancel context.CancelFunc) {
 		errChan := make(chan error)
 		infoChan := make(chan string)
 
+		selected := p.sWrap.CopySelection()
+		dwnF := func(errChan chan error, infoChan chan string) {
+			var episode *tohru.Episode
+			var ok bool
+			for index := range selected {
+				if episode, ok = p.Table.GetCell(index, 0).GetReference().(*tohru.Episode); !ok {
+					return
+				}
+				go p.saveEpisode(episode, errChan, infoChan)
+			}
+			for index := range selected {
+				p.sWrap.RemoveSelection(index)
+			}
+			info := fmt.Sprintf("Download Starting... \nyou can find file in %s\nif error happened it will be reported", p.Core.Config.DownloadDir)
+			modal := okModal(p.Core, utils.InfoModalID, info)
+			ShowModal(p.Core, utils.InfoModalID, modal)
+		}
+
+		streamF := func(errChan chan error, infoChan chan string) {
+			var episode *tohru.Episode
+			var ok bool
+			for index := range selected {
+				if episode, ok = p.Table.GetCell(index, 0).GetReference().(*tohru.Episode); !ok {
+					return
+				}
+				log.Printf("Streaming episode %s\n", episode.EpisodeName)
+				log.Println(episode.EpisodeUrls)
+				go p.streamEpisode(episode, errChan)
+			}
+
+			log.Println(selected)
+			for index := range selected {
+				p.sWrap.RemoveSelection(index)
+			}
+			modal := okModal(p.Core, utils.InfoModalID, "Stream Starting...\n this operation may take few minutes based on internet connection and mpv launch \nif error happened it will be reported")
+			ShowModal(p.Core, utils.InfoModalID, modal)
+		}
+
 		if len(p.sWrap.Selection) > 1 {
-			modal := confirmModal(p.Core, utils.DownloadModalID, "Download episode(s)?", "Yes", func() {
-				// Create a copy of the Selection.
-				selected := p.sWrap.CopySelection()
-				// Download selected chapters.
-				// go p.downloadChapters(selected, 0)
-				log.Println(selected)
-			})
+			modal := confirmModal(p.Core, utils.DownloadModalID, "Download episode(s)?", "Yes", dwnF, errChan, infoChan)
 			ShowModal(p.Core, utils.DownloadModalID, modal)
 		} else {
-			streamF := func(errChan chan error, infoChan chan string) {
-				selected := p.sWrap.CopySelection()
-				for index := range selected {
-					var episode *tohru.Episode
-					var ok bool
-					if episode, ok = p.Table.GetCell(index, 0).GetReference().(*tohru.Episode); !ok {
-						return
-					}
-					log.Printf("Streaming episode %s\n", episode.EpisodeName)
-					log.Println(episode.EpisodeUrls)
-					go p.streamEpisode(episode, errChan)
-				}
-
-				log.Println(selected)
-				for index := range selected {
-					p.sWrap.RemoveSelection(index)
-				}
-				modal := okModal(p.Core, utils.InfoModalID, "Stream Starting...\n this operation may take few minutes based on internet connection and mpv launch \nif error happened it will be reported")
-				ShowModal(p.Core, utils.InfoModalID, modal)
-			}
-			dwnF := func(errChan chan error, infoChan chan string) {
-				selected := p.sWrap.CopySelection()
-				for index := range selected {
-					var episode *tohru.Episode
-					var ok bool
-					if episode, ok = p.Table.GetCell(index, 0).GetReference().(*tohru.Episode); !ok {
-						return
-					}
-					go p.saveEpisode(episode, errChan, infoChan)
-				}
-
-				log.Println(selected)
-				for index := range selected {
-					p.sWrap.RemoveSelection(index)
-				}
-				info := fmt.Sprintf("Download Starting... \nyou can find file in %s\nif error happened it will be reported", p.Core.Config.DownloadDir)
-				modal := okModal(p.Core, utils.InfoModalID, info)
-				ShowModal(p.Core, utils.InfoModalID, modal)
+			log.Println(selected)
+			for index := range selected {
+				p.sWrap.RemoveSelection(index)
 			}
 			modal := watchOrDownloadModal(p.Core, utils.WatchOrDownloadModalID, "Select Option", streamF, dwnF, errChan, infoChan)
 			ShowModal(p.Core, utils.WatchOrDownloadModalID, modal)
