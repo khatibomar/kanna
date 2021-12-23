@@ -74,9 +74,9 @@ func newAnimePage(core *core.Kanna, anime *tohru.AnimeDetails) *AnimePage {
 		SetTitle("About").
 		SetBorder(true)
 
-	// Use a table to show the chapters for the anime.
+	// Use a table to show the episodes for the anime.
 	table := tview.NewTable()
-	// Set chapter headers
+	// Set episode headers
 	numHeader := tview.NewTableCell("Chap").
 		SetTextColor(utils.AnimePageChapNumColor).
 		SetSelectable(false)
@@ -102,7 +102,7 @@ func newAnimePage(core *core.Kanna, anime *tohru.AnimeDetails) *AnimePage {
 		SetTitleColor(utils.AnimePageTableTitleColor).
 		SetBorder(true)
 
-	// Add info and table to the grid. Set the focus to the chapter table.
+	// Add info and table to the grid. Set the focus to the episode table.
 	grid.AddItem(info, 0, 0, 5, 15, 0, 0, false).
 		AddItem(table, 5, 0, 10, 15, 0, 0, true).
 		AddItem(info, 0, 0, 15, 5, 0, 80, false).
@@ -194,7 +194,7 @@ func (p *AnimePage) setEpisodesTable() {
 	}
 
 	markers := map[string]struct{}{}
-	// Fill in the chapters
+	// Fill in the episodes
 	for index := 0; index < len(episodes); index++ {
 		if p.cWrap.ToCancel(ctx) {
 			return
@@ -214,7 +214,7 @@ func (p *AnimePage) setEpisodesTable() {
 			return
 		}
 		// Chapter Number
-		chapterNumCell := tview.NewTableCell(
+		episodeNumCell := tview.NewTableCell(
 			fmt.Sprintf("%-6s", episode.EpisodeNumber)).
 			SetMaxWidth(10).SetTextColor(utils.AnimePageChapNumColor).SetReference(&episode)
 
@@ -238,7 +238,7 @@ func (p *AnimePage) setEpisodesTable() {
 		}
 		readCell := tview.NewTableCell(read).SetTextColor(utils.AnimePageReadStatColor)
 
-		p.Table.SetCell(index+1, 0, chapterNumCell).
+		p.Table.SetCell(index+1, 0, episodeNumCell).
 			SetCell(index+1, 1, titleCell).
 			SetCell(index+1, 2, downloadCell)
 
@@ -264,7 +264,7 @@ func (p *AnimePage) getAllEpisodes(ctx context.Context, animeID int) ([]tohru.Ep
 		if err != nil {
 			return []tohru.Episode{}, err
 		}
-		log.Printf("Got %d of %d chapters\n", currOffset, len(list))
+		log.Printf("Got %d of %d episodes\n", currOffset, len(list))
 		episodes = list
 		currOffset += EpisodesOffsetRange
 		if currOffset >= len(list) {
@@ -274,19 +274,19 @@ func (p *AnimePage) getAllEpisodes(ctx context.Context, animeID int) ([]tohru.Ep
 	return episodes, nil
 }
 
-// markSelected : Mark a chapter as being selected by the user on the main page table.
+// markSelected : Mark an episode as being selected by the user on the main page table.
 func (p *AnimePage) markSelected(row int) {
-	chapterCell := p.Table.GetCell(row, 0)
-	chapterCell.SetTextColor(tcell.ColorBlack).SetBackgroundColor(utils.AnimePageHighlightColor)
+	episodeCell := p.Table.GetCell(row, 0)
+	episodeCell.SetTextColor(tcell.ColorBlack).SetBackgroundColor(utils.AnimePageHighlightColor)
 
 	// Add to the Selection wrapper
 	p.sWrap.AddSelection(row)
 }
 
-// markUnselected : Mark a chapter as being unselected by the user on the main page table.
+// markUnselected : Mark an episode as being unselected by the user on the main page table.
 func (p *AnimePage) markUnselected(row int) {
-	chapterCell := p.Table.GetCell(row, 0)
-	chapterCell.SetTextColor(utils.AnimePageChapNumColor).SetBackgroundColor(tcell.ColorBlack)
+	episodeCell := p.Table.GetCell(row, 0)
+	episodeCell.SetTextColor(utils.AnimePageChapNumColor).SetBackgroundColor(tcell.ColorBlack)
 
 	// Remove from the Selection wrapper
 	p.sWrap.RemoveSelection(row)

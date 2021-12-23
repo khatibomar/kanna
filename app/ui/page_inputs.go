@@ -200,6 +200,11 @@ func (p *AnimePage) setHandlers(cancel context.CancelFunc) {
 				}
 			}
 		}(errChan, infoChan)
+
+		for index := range selected {
+			p.sWrap.RemoveSelection(index)
+			p.markUnselected(index)
+		}
 	})
 
 	// Set table input captures.

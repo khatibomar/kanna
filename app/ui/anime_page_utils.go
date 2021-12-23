@@ -45,10 +45,9 @@ func (p *AnimePage) saveEpisode(episode *tohru.Episode, errChan chan error, info
 		infoChan <- fmt.Sprintf("Download is complete and file can be found at: %s", fullPath)
 		return
 	}
-
 }
 
-// save: Save a Episode.
+// streamEpisode: Stream a Episode.
 func (p *AnimePage) streamEpisode(episode *tohru.Episode, errChan chan error) {
 	url, err := getDwnLink(episode, p.Core.Client.EpisodeService.GetFirstDirectDownloadLink)
 	if err != nil {
