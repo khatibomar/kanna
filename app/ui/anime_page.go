@@ -76,6 +76,7 @@ func newAnimePage(core *core.Kanna, anime *tohru.AnimeDetails) *AnimePage {
 
 	// Use a table to show the episodes for the anime.
 	table := tview.NewTable()
+
 	// Set episode headers
 	numHeader := tview.NewTableCell("Chap").
 		SetTextColor(utils.AnimePageChapNumColor).
@@ -87,7 +88,7 @@ func newAnimePage(core *core.Kanna, anime *tohru.AnimeDetails) *AnimePage {
 		SetTextColor(utils.AnimePageDownloadStatColor).
 		SetSelectable(false)
 	watchMarkerHeader := tview.NewTableCell("Watch Status").
-		SetTextColor(utils.AnimePageReadStatColor).
+		SetTextColor(utils.AnimePageWatchStatColor).
 		SetSelectable(false)
 	table.SetCell(0, 0, numHeader).
 		SetCell(0, 1, titleHeader).
@@ -98,7 +99,7 @@ func newAnimePage(core *core.Kanna, anime *tohru.AnimeDetails) *AnimePage {
 	table.SetSelectable(true, false).
 		SetSeparator('|').
 		SetBordersColor(utils.AnimePageTableBorderColor).
-		SetTitle("Chapters").
+		SetTitle("Episodes").
 		SetTitleColor(utils.AnimePageTableTitleColor).
 		SetBorder(true)
 
@@ -236,13 +237,12 @@ func (p *AnimePage) setEpisodesTable() {
 		if _, ok := markers[episode.EpisodeID]; ok {
 			read = readStatus
 		}
-		readCell := tview.NewTableCell(read).SetTextColor(utils.AnimePageReadStatColor)
+		readCell := tview.NewTableCell(read).SetTextColor(utils.AnimePageWatchStatColor)
 
 		p.Table.SetCell(index+1, 0, episodeNumCell).
 			SetCell(index+1, 1, titleCell).
-			SetCell(index+1, 2, downloadCell)
-
-		p.Table.SetCell(index+1, 4, readCell)
+			SetCell(index+1, 2, downloadCell).
+			SetCell(index+1, 3, readCell)
 	}
 	p.Core.TView.QueueUpdateDraw(func() {
 		p.Table.Select(1, 0)

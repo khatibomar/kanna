@@ -28,7 +28,7 @@ const (
 	AnimePageChapNumColor      = tcell.ColorLightYellow
 	AnimePageTitleColor        = tcell.ColorLightSkyBlue
 	AnimePageDownloadStatColor = tcell.ColorPowderBlue
-	AnimePageReadStatColor     = tcell.ColorOrange
+	AnimePageWatchStatColor    = tcell.ColorOrange
 	AnimePageScanGroupColor    = tcell.ColorDarkSalmon
 	AnimePageHighlightColor    = tcell.ColorMediumSpringGreen
 )
