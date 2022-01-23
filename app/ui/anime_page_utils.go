@@ -2,6 +2,7 @@ package ui
 
 import (
 	"fmt"
+	"log"
 	"net/url"
 	"os"
 	"os/exec"
@@ -27,6 +28,8 @@ func (p *AnimePage) saveEpisode(episode *tohru.Episode, errChan chan error, info
 	filePath := p.getDownloadPath(episode, p.Core.Config.DownloadDir)
 	fullPath := fmt.Sprintf("%s%s.%s", filePath, removeRestrictedChars(episode.EpisodeName), "mp4")
 
+	log.Printf("downloading episode with id : %s , name : %s\n from server %s \nto %s", episode.EpisodeID, episode.EpisodeName, url, fullPath)
+
 	err = os.MkdirAll(filePath, 0777)
 	if err != nil {
 		errChan <- err
@@ -43,6 +46,7 @@ func (p *AnimePage) saveEpisode(episode *tohru.Episode, errChan chan error, info
 	}
 	if resp.IsComplete() {
 		infoChan <- fmt.Sprintf("Download is complete and file can be found at: %s", fullPath)
+		log.Printf("download complete and saved to %s\n", fullPath)
 		return
 	}
 }
@@ -54,6 +58,7 @@ func (p *AnimePage) streamEpisode(episode *tohru.Episode, errChan chan error) {
 		errChan <- err
 		return
 	}
+	log.Printf("streaming episode with id : %s , name : %s\n from server %s", episode.EpisodeID, episode.EpisodeName, url)
 	mpv := exec.Command("mpv", url)
 	if err := mpv.Start(); err != nil {
 		errChan <- fmt.Errorf("%q: failed to start mpv", err)
