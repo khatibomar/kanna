@@ -10,8 +10,8 @@ import (
 	"strconv"
 	"strings"
 
-	"github.com/cavaliercoder/grab"
-	"github.com/khatibomar/tohru"
+	"github.com/cavaliergopher/grab/v3"
+	"codeberg.org/omarkhatib/tohru"
 )
 
 const (

@@ -4,7 +4,7 @@ import (
 	"log"
 	"os"
 
-	"github.com/khatibomar/tohru"
+	"codeberg.org/omarkhatib/tohru"
 	"github.com/rivo/tview"
 )
 

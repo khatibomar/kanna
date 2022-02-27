@@ -9,9 +9,9 @@ import (
 	"math"
 
 	"github.com/gdamore/tcell/v2"
-	"github.com/khatibomar/kanna/app/core"
-	"github.com/khatibomar/kanna/app/ui/utils"
-	"github.com/khatibomar/tohru"
+	"codeberg.org/omarkhatib/kanna/app/core"
+	"codeberg.org/omarkhatib/kanna/app/ui/utils"
+	"codeberg.org/omarkhatib/tohru"
 )
 
 // SetUniversalHandlers : Set universal inputs for the app.

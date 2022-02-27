@@ -1,7 +1,7 @@
 package main
 
 import (
-	"github.com/khatibomar/kanna/app/service"
+	"codeberg.org/omarkhatib/kanna/app/service"
 )
 
 func main() {

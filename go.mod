@@ -1,17 +1,17 @@
-module github.com/khatibomar/kanna
+module codeberg.org/omarkhatib/kanna
 
 go 1.17
 
 require (
-	github.com/cavaliercoder/grab v2.0.0+incompatible
+	codeberg.org/omarkhatib/tohru v0.0.0-20220227230511-8c1120423725
+	github.com/cavaliergopher/grab/v3 v3.0.1
 	github.com/gdamore/tcell/v2 v2.4.1-0.20210905002822-f057f0a857a1
-	github.com/khatibomar/tohru v0.0.0-20211217085241-6c7bb681db24
-	github.com/rivo/tview v0.0.0-20211202162923-2a6de950f73b
+	github.com/rivo/tview v0.0.0-20220216162559-96063d6082f3
 )
 
 require (
+	codeberg.org/omarkhatib/kobayashi v0.0.0-20220227225537-548d1a3ffaf3 // indirect
 	github.com/gdamore/encoding v1.0.0 // indirect
-	github.com/khatibomar/kobayashi v0.0.0-20211216065057-5e57f7c1613e // indirect
 	github.com/lucasb-eyer/go-colorful v1.2.0 // indirect
 	github.com/mattn/go-runewidth v0.0.13 // indirect
 	github.com/rivo/uniseg v0.2.0 // indirect

@@ -8,9 +8,9 @@ import (
 	"strings"
 	"time"
 
-	"github.com/khatibomar/kanna/app/core"
-	"github.com/khatibomar/kanna/app/ui/utils"
-	"github.com/khatibomar/tohru"
+	"codeberg.org/omarkhatib/kanna/app/core"
+	"codeberg.org/omarkhatib/kanna/app/ui/utils"
+	"codeberg.org/omarkhatib/tohru"
 	"github.com/rivo/tview"
 )
 
