@@ -119,9 +119,14 @@ func (p *MainPage) setLatestUpdatedAnimeTable(searchParams *SearchParams) {
 			SetAlign(tview.AlignCenter).
 			SetTextColor(utils.GuestMainPageTagColor).
 			SetSelectable(false)
+		yearHeader := tview.NewTableCell("Year").
+			SetAlign(tview.AlignCenter).
+			SetTextColor(utils.GuestMainPageTagColor).
+			SetSelectable(false)
 		p.Table.SetCell(0, 0, titleHeader).
 			SetCell(0, 1, descHeader).
 			SetCell(0, 2, tagHeader).
+			SetCell(0, 3, yearHeader).
 			SetFixed(1, 0)
 
 		// Set table title.
@@ -173,9 +178,13 @@ func (p *MainPage) setLatestUpdatedAnimeTable(searchParams *SearchParams) {
 		// Episode cell.
 		tagCell := tview.NewTableCell(anime.LatestEpisodeName).SetTextColor(utils.GuestMainPageTagColor)
 
+		// Year cell.
+		yearCell := tview.NewTableCell(anime.AnimeReleaseYear).SetTextColor(utils.AnimePageHighlightColor)
+
 		p.Table.SetCell(index+1, 0, mtCell).
 			SetCell(index+1, 1, descCell).
-			SetCell(index+1, 2, tagCell)
+			SetCell(index+1, 2, tagCell).
+			SetCell(index+1, 3, yearCell)
 	}
 	p.Core.TView.QueueUpdateDraw(func() {
 		p.Table.Select(1, 0)
