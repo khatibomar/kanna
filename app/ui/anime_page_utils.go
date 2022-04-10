@@ -10,8 +10,8 @@ import (
 	"strconv"
 	"strings"
 
-	"github.com/cavaliergopher/grab/v3"
 	"codeberg.org/omarkhatib/tohru"
+	"github.com/cavaliergopher/grab/v3"
 )
 
 const (
@@ -97,10 +97,10 @@ func getDwnLink(episode *tohru.Episode, getFirstDwnLinkF func(string, int) (stri
 // getDownloadFolder : Get the download folder for an episode.
 func (p *AnimePage) getDownloadPath(episode *tohru.Episode, dwnDir string) string {
 	animeName := removeRestrictedChars(p.Anime.AnimeName)
-	episodeNumber := episode.EpisodeNumber
+	animeYear := p.Anime.AnimeReleaseYear
 
 	// Remove invalid characters from the folder name
-	fullPath := path.Join(dwnDir, animeName, episodeNumber) + "/"
+	fullPath := path.Join(dwnDir, animeName+"_"+animeYear) + "/"
 
 	return fullPath
 }
