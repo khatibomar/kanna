@@ -4,15 +4,14 @@ import (
 	"context"
 	"fmt"
 	"log"
-	"os"
 	"strconv"
 	"strings"
 	"time"
 
-	"github.com/gdamore/tcell/v2"
 	"codeberg.org/omarkhatib/kanna/app/core"
 	"codeberg.org/omarkhatib/kanna/app/ui/utils"
 	"codeberg.org/omarkhatib/tohru"
+	"github.com/gdamore/tcell/v2"
 	"github.com/rivo/tview"
 )
 
@@ -21,6 +20,11 @@ const (
 	contextCancelledError = "CANCELLED"
 	readStatus            = "Y"
 )
+
+type EpisodeSelection struct {
+	animeID string
+	episode *tohru.Episode
+}
 
 // AnimePage : This struct contains the required primitives for the anime page.
 type AnimePage struct {
@@ -78,22 +82,10 @@ func newAnimePage(core *core.Kanna, anime *tohru.AnimeDetails) *AnimePage {
 	table := tview.NewTable()
 
 	// Set episode headers
-	numHeader := tview.NewTableCell("Chap").
+	titleHead := tview.NewTableCell("Episode Number").
 		SetTextColor(utils.AnimePageChapNumColor).
 		SetSelectable(false)
-	titleHeader := tview.NewTableCell("Name").
-		SetTextColor(utils.AnimePageTitleColor).
-		SetSelectable(false)
-	downloadHeader := tview.NewTableCell("Download Status").
-		SetTextColor(utils.AnimePageDownloadStatColor).
-		SetSelectable(false)
-	watchMarkerHeader := tview.NewTableCell("Watch Status").
-		SetTextColor(utils.AnimePageWatchStatColor).
-		SetSelectable(false)
-	table.SetCell(0, 0, numHeader).
-		SetCell(0, 1, titleHeader).
-		SetCell(0, 2, downloadHeader).
-		SetCell(0, 3, watchMarkerHeader).
+	table.SetCell(0, 0, titleHead).
 		SetFixed(1, 0)
 	// Set table attributes
 	table.SetSelectable(true, false).
@@ -193,57 +185,32 @@ func (p *AnimePage) setEpisodesTable() {
 		})
 		return
 	}
-
 	markers := map[string]struct{}{}
 	// Fill in the episodes
 	for index := 0; index < len(episodes); index++ {
 		if p.cWrap.ToCancel(ctx) {
 			return
 		}
-		anID, _ := strconv.Atoi(p.Anime.AnimeID)
-		epId, _ := strconv.Atoi(episodes[index].EpisodeID)
-		episode, err := p.Core.Client.EpisodeService.GetEpisodeDetails(anID, epId)
-		if err != nil {
-			if strings.Contains(err.Error(), contextCancelledError) {
-				return
-			}
-			log.Println(fmt.Sprintf("Error getting anime episodes: %s", err.Error()))
-			p.Core.TView.QueueUpdateDraw(func() {
-				modal := okModal(p.Core, utils.GenericAPIErrorModalID, "Error getting anime episodes.\nCheck log for details.")
-				ShowModal(p.Core, utils.GenericAPIErrorModalID, modal)
-			})
-			return
+		selection := EpisodeSelection{
+			animeID: p.Anime.AnimeID,
+			episode: &episodes[index],
 		}
-		// Chapter Number
+
+		// Episode Number
+		episodeText := fmt.Sprintf("الحلقة: %d", index+1)
 		episodeNumCell := tview.NewTableCell(
-			fmt.Sprintf("%-6s", episode.EpisodeNumber)).
-			SetMaxWidth(10).SetTextColor(utils.AnimePageChapNumColor).SetReference(&episode)
-
-		// Chapter title
-		titleCell := tview.NewTableCell(fmt.Sprintf("%-30s", episode.EpisodeName)).SetMaxWidth(30).
-			SetTextColor(utils.AnimePageTitleColor)
-
-		// Chapter download status
-		var downloadStatus string
-		// Check for the presence of the download folder.
-		pth := p.getDownloadPath(&episode, p.Core.Config.DownloadDir)
-		if _, err = os.Stat(pth); err == nil {
-			downloadStatus = "Y"
-		}
-		downloadCell := tview.NewTableCell(downloadStatus).SetTextColor(utils.AnimePageDownloadStatColor)
-
+			fmt.Sprintf("%-6s", episodeText)).
+			SetMaxWidth(10).SetTextColor(utils.AnimePageChapNumColor).SetReference(selection)
 		// Read marker
 		var read string
-		if _, ok := markers[episode.EpisodeID]; ok {
+		if _, ok := markers[selection.episode.EpisodeID]; ok {
 			read = readStatus
 		}
 		readCell := tview.NewTableCell(read).SetTextColor(utils.AnimePageWatchStatColor)
-
 		p.Table.SetCell(index+1, 0, episodeNumCell).
-			SetCell(index+1, 1, titleCell).
-			SetCell(index+1, 2, downloadCell).
-			SetCell(index+1, 3, readCell)
+			SetCell(index+1, 1, readCell)
 	}
+
 	p.Core.TView.QueueUpdateDraw(func() {
 		p.Table.Select(1, 0)
 		p.Table.ScrollToBeginning()

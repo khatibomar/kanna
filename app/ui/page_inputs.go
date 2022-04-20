@@ -7,11 +7,12 @@ import (
 	"fmt"
 	"log"
 	"math"
+	"strconv"
 
-	"github.com/gdamore/tcell/v2"
 	"codeberg.org/omarkhatib/kanna/app/core"
 	"codeberg.org/omarkhatib/kanna/app/ui/utils"
 	"codeberg.org/omarkhatib/tohru"
+	"github.com/gdamore/tcell/v2"
 )
 
 // SetUniversalHandlers : Set universal inputs for the app.
@@ -135,14 +136,21 @@ func (p *AnimePage) setHandlers(cancel context.CancelFunc) {
 		infoChan := make(chan string)
 
 		dwnF := func(selected map[int]struct{}, errChan chan error, infoChan chan string) {
-			var episode *tohru.Episode
+			var selection EpisodeSelection
 			var ok bool
 			for index := range selected {
-				if episode, ok = p.Table.GetCell(index, 0).GetReference().(*tohru.Episode); !ok {
+				if selection, ok = p.Table.GetCell(index, 0).GetReference().(EpisodeSelection); !ok {
 					return
 				}
-				log.Printf("Downloading episode %s\n", episode.EpisodeName)
-				go p.saveEpisode(episode, errChan, infoChan)
+				log.Printf("Downloading episode %s\n", selection.episode.EpisodeName)
+				animeID, _ := strconv.Atoi(selection.animeID)
+				episodeID, _ := strconv.Atoi(selection.episode.EpisodeID)
+				episode, err := p.Core.Client.EpisodeService.GetEpisodeDetails(animeID, episodeID)
+				if err != nil {
+					log.Printf("Failed to get episode: %s\n", err.Error())
+					return
+				}
+				go p.saveEpisode(&episode, errChan, infoChan)
 			}
 			info := fmt.Sprintf("Download Starting... \nyou can find file in %s\nif error happened it will be reported", p.Core.Config.DownloadDir)
 			modal := okModal(p.Core, utils.InfoModalID, info)
@@ -150,14 +158,21 @@ func (p *AnimePage) setHandlers(cancel context.CancelFunc) {
 		}
 
 		streamF := func(selected map[int]struct{}, errChan chan error, infoChan chan string) {
-			var episode *tohru.Episode
+			var selection EpisodeSelection
 			var ok bool
 			for index := range selected {
-				if episode, ok = p.Table.GetCell(index, 0).GetReference().(*tohru.Episode); !ok {
+				if selection, ok = p.Table.GetCell(index, 0).GetReference().(EpisodeSelection); !ok {
 					return
 				}
-				log.Printf("Streaming episode %s\n", episode.EpisodeName)
-				go p.streamEpisode(episode, errChan)
+				log.Printf("Streaming episode %s\n", selection.episode.EpisodeName)
+				animeID, _ := strconv.Atoi(selection.animeID)
+				episodeID, _ := strconv.Atoi(selection.episode.EpisodeID)
+				episode, err := p.Core.Client.EpisodeService.GetEpisodeDetails(animeID, episodeID)
+				if err != nil {
+					log.Printf("Failed to get episode: %s\n", err.Error())
+					return
+				}
+				go p.streamEpisode(&episode, errChan)
 			}
 
 			log.Println(selected)
