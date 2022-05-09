@@ -16,7 +16,7 @@ func Start() {
 		PageHolder: tview.NewPages(),
 	}
 	core.Initialise()
-	cfg := tohru.NewConfig(core.Config.ClientID, core.Config.ClientSecret)
+	cfg := tohru.NewConfig(core.Config.ClientID, core.Config.ClientSecret, core.Config.BackupLinksSecret)
 	core.Client = tohru.NewTohruClient(cfg)
 
 	ui.ShowMainPage(core)
