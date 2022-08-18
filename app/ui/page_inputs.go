@@ -135,57 +135,12 @@ func (p *AnimePage) setHandlers(cancel context.CancelFunc) {
 		errChan := make(chan error)
 		infoChan := make(chan string)
 
-		dwnF := func(selected map[int]struct{}, errChan chan error, infoChan chan string) {
-			var selection EpisodeSelection
-			var ok bool
-			for index := range selected {
-				if selection, ok = p.Table.GetCell(index, 0).GetReference().(EpisodeSelection); !ok {
-					return
-				}
-				log.Printf("Downloading episode %s\n", selection.episode.EpisodeName)
-				animeID, _ := strconv.Atoi(selection.animeID)
-				episodeID, _ := strconv.Atoi(selection.episode.EpisodeID)
-				episode, err := p.Core.Client.EpisodeService.GetEpisodeDetails(animeID, episodeID)
-				if err != nil {
-					log.Printf("Failed to get episode: %s\n", err.Error())
-					return
-				}
-				go p.saveEpisode(&episode, errChan, infoChan)
-			}
-			info := fmt.Sprintf("Download Starting... \nyou can find file in %s\nif error happened it will be reported", p.Core.Config.DownloadDir)
-			modal := okModal(p.Core, utils.InfoModalID, info)
-			ShowModal(p.Core, utils.InfoModalID, modal)
-		}
-
-		streamF := func(selected map[int]struct{}, errChan chan error, infoChan chan string) {
-			var selection EpisodeSelection
-			var ok bool
-			for index := range selected {
-				if selection, ok = p.Table.GetCell(index, 0).GetReference().(EpisodeSelection); !ok {
-					return
-				}
-				log.Printf("Streaming episode %s\n", selection.episode.EpisodeName)
-				animeID, _ := strconv.Atoi(selection.animeID)
-				episodeID, _ := strconv.Atoi(selection.episode.EpisodeID)
-				episode, err := p.Core.Client.EpisodeService.GetEpisodeDetails(animeID, episodeID)
-				if err != nil {
-					log.Printf("Failed to get episode: %s\n", err.Error())
-					return
-				}
-				go p.streamEpisode(&episode, errChan)
-			}
-
-			log.Println(selected)
-			modal := okModal(p.Core, utils.InfoModalID, "Stream Starting...\n this operation may take few minutes based on internet connection and mpv launch \nif error happened it will be reported")
-			ShowModal(p.Core, utils.InfoModalID, modal)
-		}
-
 		selected := p.sWrap.CopySelection()
 		if len(selected) > 1 {
-			modal := confirmDownloadModal(p.Core, selected, dwnF, errChan, infoChan)
+			modal := confirmDownloadModal(p.Core, selected, p.download, errChan, infoChan)
 			ShowModal(p.Core, utils.DownloadModalID, modal)
 		} else {
-			modal := watchOrDownloadModal(p.Core, utils.WatchOrDownloadModalID, "Select Option", selected, streamF, dwnF, errChan, infoChan)
+			modal := watchOrDownloadModal(p.Core, utils.WatchOrDownloadModalID, "Select Option", selected, p.stream, p.download, errChan, infoChan)
 			ShowModal(p.Core, utils.WatchOrDownloadModalID, modal)
 		}
 
@@ -280,4 +235,49 @@ func GetMD5Hash(text string) string {
 	hasher := md5.New()
 	hasher.Write([]byte(text))
 	return hex.EncodeToString(hasher.Sum(nil))
+}
+
+func (p *AnimePage) stream(selected map[int]struct{}, errChan chan error, infoChan chan string) {
+	var selection EpisodeSelection
+	var ok bool
+	for index := range selected {
+		if selection, ok = p.Table.GetCell(index, 0).GetReference().(EpisodeSelection); !ok {
+			return
+		}
+		log.Printf("Streaming episode %s\n", selection.episode.EpisodeName)
+		animeID, _ := strconv.Atoi(selection.animeID)
+		episodeID, _ := strconv.Atoi(selection.episode.EpisodeID)
+		episode, err := p.Core.Client.EpisodeService.GetEpisodeDetails(animeID, episodeID)
+		if err != nil {
+			log.Printf("Failed to get episode: %s\n", err.Error())
+			return
+		}
+		go p.streamEpisode(&episode, errChan)
+	}
+
+	log.Println(selected)
+	modal := okModal(p.Core, utils.InfoModalID, "Stream Starting...\n this operation may take few minutes based on internet connection and mpv launch \nif error happened it will be reported")
+	ShowModal(p.Core, utils.InfoModalID, modal)
+}
+
+func (p *AnimePage) download(selected map[int]struct{}, errChan chan error, infoChan chan string) {
+	var selection EpisodeSelection
+	var ok bool
+	for index := range selected {
+		if selection, ok = p.Table.GetCell(index, 0).GetReference().(EpisodeSelection); !ok {
+			return
+		}
+		log.Printf("Downloading episode %s\n", selection.episode.EpisodeName)
+		animeID, _ := strconv.Atoi(selection.animeID)
+		episodeID, _ := strconv.Atoi(selection.episode.EpisodeID)
+		episode, err := p.Core.Client.EpisodeService.GetEpisodeDetails(animeID, episodeID)
+		if err != nil {
+			log.Printf("Failed to get episode: %s\n", err.Error())
+			return
+		}
+		go p.saveEpisode(&episode, errChan, infoChan)
+	}
+	info := fmt.Sprintf("Download Starting... \nyou can find file in %s\nif error happened it will be reported", p.Core.Config.DownloadDir)
+	modal := okModal(p.Core, utils.InfoModalID, info)
+	ShowModal(p.Core, utils.InfoModalID, modal)
 }

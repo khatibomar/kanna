@@ -18,7 +18,6 @@ const (
 	maxRetries = 5
 )
 
-// save: Save a Episode.
 func (p *AnimePage) saveEpisode(episode *tohru.Episode, errChan chan error, infoChan chan string) {
 	url, err := getDwnLink(episode, p.Core.Client.EpisodeService.GetFirstDirectDownloadLink)
 	if err != nil {
@@ -51,7 +50,6 @@ func (p *AnimePage) saveEpisode(episode *tohru.Episode, errChan chan error, info
 	}
 }
 
-// streamEpisode: Stream a Episode.
 func (p *AnimePage) streamEpisode(episode *tohru.Episode, errChan chan error) {
 	url, err := getDwnLink(episode, p.Core.Client.EpisodeService.GetFirstDirectDownloadLink)
 	if err != nil {
