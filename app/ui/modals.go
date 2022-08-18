@@ -31,28 +31,6 @@ func okModal(core *core.Kanna, id, text string) *tview.Modal {
 	return modal
 }
 
-// confirmModal : Creates a new modal for confirmation.
-// The user specifies the function to do when confirming.
-// If the user cancels, then the modal is removed from the view.
-func confirmModal(core *core.Kanna, id, text, confirmButton string, f func()) *tview.Modal {
-	// Create new modal
-	modal := tview.NewModal()
-
-	// Set modal attributes
-	modal.SetText(text).
-		SetBackgroundColor(utils.ModalColor).
-		AddButtons([]string{confirmButton, "Cancel"}).
-		SetFocus(0).
-		SetDoneFunc(func(buttonIndex int, _ string) {
-			if buttonIndex == 0 {
-				f()
-			}
-			log.Printf("Removing %s modal\n", id)
-			core.PageHolder.RemovePage(id)
-		})
-	return modal
-}
-
 func confirmDownloadModal(core *core.Kanna, selected map[int]struct{}, f actionFunc, errChan chan error, infoChan chan string) *tview.Modal {
 	// Create new modal
 	modal := tview.NewModal()

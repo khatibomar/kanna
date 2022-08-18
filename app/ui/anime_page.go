@@ -172,7 +172,7 @@ func (p *AnimePage) setEpisodesTable() {
 		if strings.Contains(err.Error(), contextCancelledError) {
 			return
 		}
-		log.Println(fmt.Sprintf("Error getting anime episodes: %s", err.Error()))
+		log.Printf("error getting anime episodes: %s\n", err.Error())
 		p.Core.TView.QueueUpdateDraw(func() {
 			modal := okModal(p.Core, utils.GenericAPIErrorModalID, "Error getting anime episodes.\nCheck log for details.")
 			ShowModal(p.Core, utils.GenericAPIErrorModalID, modal)

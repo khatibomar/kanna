@@ -14,10 +14,6 @@ import (
 	"github.com/cavaliergopher/grab/v3"
 )
 
-const (
-	maxRetries = 5
-)
-
 func (p *AnimePage) saveEpisode(episode *tohru.Episode, errChan chan error, infoChan chan string) {
 	url, err := getDwnLink(episode, p.Core.Client.EpisodeService.GetFirstDirectDownloadInfo)
 	if err != nil {
@@ -66,7 +62,7 @@ func (p *AnimePage) streamEpisode(episode *tohru.Episode, errChan chan error) {
 
 func getDwnLink(episode *tohru.Episode, getFirstDwnLinkF func(string, int) (tohru.DownloadInfo, error)) (tohru.DownloadInfo, error) {
 	if len(episode.EpisodeUrls) == 0 {
-		return tohru.DownloadInfo{}, fmt.Errorf("No Download links available")
+		return tohru.DownloadInfo{}, fmt.Errorf("no Download links available")
 	}
 	input_url := episode.EpisodeUrls[0].EpisodeURL
 	u, err := url.Parse(input_url)
