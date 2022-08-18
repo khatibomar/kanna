@@ -2,6 +2,10 @@ codeberg.org/omarkhatib/kobayashi v0.0.0-20220227225537-548d1a3ffaf3 h1:01zO1zBV
 codeberg.org/omarkhatib/kobayashi v0.0.0-20220227225537-548d1a3ffaf3/go.mod h1:YnYgoT+HQhE46AvgIxjcS1cfry58jNmxXzK75l0/ZBE=
 codeberg.org/omarkhatib/tohru v0.0.0-20220509041111-1ed7c4745c25 h1:M5oV8mOL2c2aHnNTaH+kfJJ9vTt9MPTltFyDEjl1yBU=
 codeberg.org/omarkhatib/tohru v0.0.0-20220509041111-1ed7c4745c25/go.mod h1:2wme8O2eaZd6ge0R+SdBR1PQXc9eGVnPHDaKIVLP2QA=
+codeberg.org/omarkhatib/tohru v0.0.0-20220818072144-da59f4bb71b4 h1:HAfa37quJ5nMhJgVkxQU1pWV8QKmkoT4k27/eOH2l0w=
+codeberg.org/omarkhatib/tohru v0.0.0-20220818072144-da59f4bb71b4/go.mod h1:2wme8O2eaZd6ge0R+SdBR1PQXc9eGVnPHDaKIVLP2QA=
+codeberg.org/omarkhatib/tohru v0.0.0-20220818075020-bfe666220f6e h1:hEhuQO3w/nnlaFw0woLnEMyPz4xZIbBvcGwEPUZ9yTI=
+codeberg.org/omarkhatib/tohru v0.0.0-20220818075020-bfe666220f6e/go.mod h1:2wme8O2eaZd6ge0R+SdBR1PQXc9eGVnPHDaKIVLP2QA=
 github.com/RNCryptor/RNCryptor-go v0.1.0 h1:bYm8subCE2pnzdGnhx+tbUdox5KrFJl7tVrPj7/GCPE=
 github.com/RNCryptor/RNCryptor-go v0.1.0/go.mod h1:NUtjXlLdngbOXtzr166Ol6RYAUbaFnFKBhAhC+Hl+5s=
 github.com/cavaliergopher/grab/v3 v3.0.1 h1:4z7TkBfmPjmLAAmkkAZNX/6QJ1nNFdv3SdIHXju0Fr4=

@@ -19,7 +19,7 @@ const (
 )
 
 func (p *AnimePage) saveEpisode(episode *tohru.Episode, errChan chan error, infoChan chan string) {
-	url, err := getDwnLink(episode, p.Core.Client.EpisodeService.GetFirstDirectDownloadLink)
+	url, err := getDwnLink(episode, p.Core.Client.EpisodeService.GetFirstDirectDownloadInfo)
 	if err != nil {
 		errChan <- err
 		return
@@ -34,7 +34,7 @@ func (p *AnimePage) saveEpisode(episode *tohru.Episode, errChan chan error, info
 		errChan <- err
 		return
 	}
-	resp, err := grab.Get(fullPath, url)
+	resp, err := grab.Get(fullPath, url.EpisodeDirectDownloadLink)
 	if err != nil {
 		errChan <- err
 		return
@@ -51,27 +51,27 @@ func (p *AnimePage) saveEpisode(episode *tohru.Episode, errChan chan error, info
 }
 
 func (p *AnimePage) streamEpisode(episode *tohru.Episode, errChan chan error) {
-	url, err := getDwnLink(episode, p.Core.Client.EpisodeService.GetFirstDirectDownloadLink)
+	url, err := getDwnLink(episode, p.Core.Client.EpisodeService.GetFirstDirectDownloadInfo)
 	if err != nil {
 		errChan <- err
 		return
 	}
 	log.Printf("streaming episode with id : %s , name : %s\n from server %s", episode.EpisodeID, episode.EpisodeName, url)
-	mpv := exec.Command("mpv", url)
+	mpv := exec.Command("mpv", url.EpisodeDirectDownloadLink)
 	if err := mpv.Start(); err != nil {
 		errChan <- fmt.Errorf("%q: failed to start mpv", err)
 		return
 	}
 }
 
-func getDwnLink(episode *tohru.Episode, getFirstDwnLinkF func(string, int) (string, error)) (string, error) {
+func getDwnLink(episode *tohru.Episode, getFirstDwnLinkF func(string, int) (tohru.DownloadInfo, error)) (tohru.DownloadInfo, error) {
 	if len(episode.EpisodeUrls) == 0 {
-		return "", fmt.Errorf("No Download links available")
+		return tohru.DownloadInfo{}, fmt.Errorf("No Download links available")
 	}
 	input_url := episode.EpisodeUrls[0].EpisodeURL
 	u, err := url.Parse(input_url)
 	if err != nil {
-		return "", err
+		return tohru.DownloadInfo{}, err
 	}
 	params := u.Query()
 	var animeSpecialName string
@@ -83,11 +83,11 @@ func getDwnLink(episode *tohru.Episode, getFirstDwnLinkF func(string, int) (stri
 	}
 	nb, err := strconv.Atoi(episode.EpisodeNumber)
 	if err != nil {
-		return "", err
+		return tohru.DownloadInfo{}, err
 	}
 	url, err := getFirstDwnLinkF(animeSpecialName, nb)
 	if err != nil {
-		return "", err
+		return tohru.DownloadInfo{}, err
 	}
 	return url, nil
 }
