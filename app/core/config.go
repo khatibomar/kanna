@@ -10,10 +10,11 @@ import (
 var configFilePath = filepath.Join(GetConfDir(), "config.json")
 
 type Config struct {
-	ClientID          string
-	ClientSecret      string
-	BackupLinksSecret string
-	DownloadDir       string
+	ClientID              string
+	ClientSecret          string
+	BackupLinksSecret     string
+	DownloadDir           string
+	MaxConcurrentDownload uint
 }
 
 func (t *Kanna) loadConfiguration() error {

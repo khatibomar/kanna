@@ -37,8 +37,9 @@ func (t *Kanna) Initialise() error {
 	repo := repository.NewInMemoryRepo()
 
 	fafnirCfg := fafnir.Config{
-		ErrChan: make(chan error, 100),
-		Repo:    repo,
+		ErrChan:                make(chan error, 100),
+		Repo:                   repo,
+		MaxConcurrentDownloads: t.Config.MaxConcurrentDownload,
 	}
 	err := fmt.Errorf("")
 	t.Fafnir, err = fafnir.New(&fafnirCfg)
