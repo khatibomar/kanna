@@ -1,15 +1,19 @@
 package core
 
 import (
+	"fmt"
 	"log"
 	"os"
 
+	"codeberg.org/omarkhatib/fafnir"
+	"codeberg.org/omarkhatib/fafnir/repository"
 	"codeberg.org/omarkhatib/tohru"
 	"github.com/rivo/tview"
 )
 
 type Kanna struct {
 	Client *tohru.TohruClient
+	Fafnir *fafnir.Fafnir
 
 	TView      *tview.Application
 	PageHolder *tview.Pages
@@ -30,8 +34,20 @@ func (t *Kanna) Initialise() error {
 		return err
 	}
 
-	t.TView.SetRoot(t.PageHolder, true).SetFocus(t.PageHolder)
+	repo := repository.NewInMemoryRepo()
 
+	fafnirCfg := fafnir.Config{
+		ErrChan: make(chan error, 100),
+		Repo:    repo,
+	}
+	err := fmt.Errorf("")
+	t.Fafnir, err = fafnir.New(&fafnirCfg)
+
+	if err != nil {
+		return err
+	}
+
+	t.TView.SetRoot(t.PageHolder, true).SetFocus(t.PageHolder)
 	return nil
 }
 

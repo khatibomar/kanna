@@ -14,7 +14,7 @@ const (
 	hoursPerMonth = float64(24 * 31)
 )
 
-var loggingDir = filepath.Join(getConfDir(), "logs")
+var loggingDir = filepath.Join(GetConfDir(), "logs")
 
 func (t *Kanna) setUpLogging() error {
 	if err := os.MkdirAll(loggingDir, os.ModePerm); err != nil {

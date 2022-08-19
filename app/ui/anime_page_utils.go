@@ -11,38 +11,43 @@ import (
 	"strings"
 
 	"codeberg.org/omarkhatib/tohru"
-	"github.com/cavaliergopher/grab/v3"
 )
 
-func (p *AnimePage) saveEpisode(episode *tohru.Episode, errChan chan error, infoChan chan string) {
-	url, err := getDwnLink(episode, p.Core.Client.EpisodeService.GetFirstDirectDownloadInfo)
-	if err != nil {
-		errChan <- err
+func (p *AnimePage) saveEpisodes(episodes []*tohru.Episode, errChan chan error, infoChan chan string) {
+	if len(episodes) == 0 {
 		return
 	}
-	filePath := p.getDownloadPath(episode, p.Core.Config.DownloadDir)
-	fullPath := fmt.Sprintf("%s%s.%s", filePath, removeRestrictedChars(episode.EpisodeName), "mp4")
+	errCount := 0
+	filePath := p.getDownloadPath(episodes[0], p.Core.Config.DownloadDir)
+	for _, episode := range episodes {
+		url, err := getDwnLink(episode, p.Core.Client.EpisodeService.GetFirstDirectDownloadInfo)
+		if err != nil {
+			if len(episodes) <= 5 {
+				errChan <- fmt.Errorf("%s: %s", episode.EpisodeName, err)
+			}
+			errCount++
+			continue
+		}
+		fullPath := fmt.Sprintf("%s%s.%s", filePath, removeRestrictedChars(episode.EpisodeName), "mp4")
 
-	log.Printf("downloading episode with id : %s , name : %s\n from server %s \nto %s", episode.EpisodeID, episode.EpisodeName, url, fullPath)
+		log.Printf("downloading episode with id : %s , name : %s\n from server %s \nto %s", episode.EpisodeID, episode.EpisodeName, url, fullPath)
 
-	err = os.MkdirAll(filePath, 0777)
+		err = os.MkdirAll(filePath, 0777)
+		if err != nil {
+			errChan <- fmt.Errorf("%s: %s", episode.EpisodeName, err)
+			continue
+		}
+		err = p.Core.Fafnir.Add(filePath, url.EpisodeDirectDownloadLink, filePath, fmt.Sprintf("%s.%s", removeRestrictedChars(episode.EpisodeName), "mp4"), url.EpisodeHostLink)
+		if err != nil {
+			errChan <- err
+		}
+	}
+	if errCount > 0 {
+		errChan <- fmt.Errorf("%d errors appeared please check logs", errCount)
+	}
+	err := p.Core.Fafnir.StartQueueDownload(filePath)
 	if err != nil {
 		errChan <- err
-		return
-	}
-	resp, err := grab.Get(fullPath, url.EpisodeDirectDownloadLink)
-	if err != nil {
-		errChan <- err
-		return
-	}
-	if resp.Err() != nil {
-		errChan <- resp.Err()
-		return
-	}
-	if resp.IsComplete() {
-		infoChan <- fmt.Sprintf("Download is complete and file can be found at: %s", fullPath)
-		log.Printf("download complete and saved to %s\n", fullPath)
-		return
 	}
 }
 

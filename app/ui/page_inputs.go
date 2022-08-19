@@ -261,22 +261,27 @@ func (p *AnimePage) stream(selected map[int]struct{}, errChan chan error, infoCh
 }
 
 func (p *AnimePage) download(selected map[int]struct{}, errChan chan error, infoChan chan string) {
-	var selection EpisodeSelection
-	var ok bool
-	for index := range selected {
-		if selection, ok = p.Table.GetCell(index, 0).GetReference().(EpisodeSelection); !ok {
-			return
+	go func(m map[int]struct{}, c1 chan error, c2 chan string) {
+		var selection EpisodeSelection
+		var ok bool
+		var episodes []*tohru.Episode
+
+		for index := range selected {
+			if selection, ok = p.Table.GetCell(index, 0).GetReference().(EpisodeSelection); !ok {
+				return
+			}
+			log.Printf("Downloading episode %s\n", selection.episode.EpisodeName)
+			animeID, _ := strconv.Atoi(selection.animeID)
+			episodeID, _ := strconv.Atoi(selection.episode.EpisodeID)
+			episode, err := p.Core.Client.EpisodeService.GetEpisodeDetails(animeID, episodeID)
+			if err != nil {
+				log.Printf("Failed to get episode: %s\n", err.Error())
+				return
+			}
+			episodes = append(episodes, &episode)
 		}
-		log.Printf("Downloading episode %s\n", selection.episode.EpisodeName)
-		animeID, _ := strconv.Atoi(selection.animeID)
-		episodeID, _ := strconv.Atoi(selection.episode.EpisodeID)
-		episode, err := p.Core.Client.EpisodeService.GetEpisodeDetails(animeID, episodeID)
-		if err != nil {
-			log.Printf("Failed to get episode: %s\n", err.Error())
-			return
-		}
-		go p.saveEpisode(&episode, errChan, infoChan)
-	}
+		go p.saveEpisodes(episodes, errChan, infoChan)
+	}(selected, errChan, infoChan)
 	info := fmt.Sprintf("Download Starting... \nyou can find file in %s\nif error happened it will be reported", p.Core.Config.DownloadDir)
 	modal := okModal(p.Core, utils.InfoModalID, info)
 	ShowModal(p.Core, utils.InfoModalID, modal)

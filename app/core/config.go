@@ -7,7 +7,7 @@ import (
 	"path/filepath"
 )
 
-var configFilePath = filepath.Join(getConfDir(), "config.json")
+var configFilePath = filepath.Join(GetConfDir(), "config.json")
 
 type Config struct {
 	ClientID          string
@@ -17,7 +17,7 @@ type Config struct {
 }
 
 func (t *Kanna) loadConfiguration() error {
-	if err := os.MkdirAll(getConfDir(), os.ModePerm); err != nil {
+	if err := os.MkdirAll(GetConfDir(), os.ModePerm); err != nil {
 		return err
 	}
 
@@ -43,7 +43,7 @@ func (t *Kanna) saveConfiguration() error {
 		return err
 	}
 
-	if err = os.MkdirAll(getConfDir(), os.ModePerm); err != nil {
+	if err = os.MkdirAll(GetConfDir(), os.ModePerm); err != nil {
 		return err
 	}
 	return ioutil.WriteFile(configFilePath, confBytes, os.ModePerm)
@@ -60,7 +60,7 @@ func (c *Config) sanitiseConfigurations() error {
 	return nil
 }
 
-func getConfDir() string {
+func GetConfDir() string {
 	configDir, err := os.UserConfigDir()
 	if err != nil {
 		configDir, err = os.UserHomeDir()
