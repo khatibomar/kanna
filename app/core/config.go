@@ -2,7 +2,6 @@ package core
 
 import (
 	"encoding/json"
-	"io/ioutil"
 	"os"
 	"path/filepath"
 )
@@ -10,11 +9,11 @@ import (
 var configFilePath = filepath.Join(GetConfDir(), "config.json")
 
 type Config struct {
-	ClientID              string
-	ClientSecret          string
-	BackupLinksSecret     string
-	DownloadDir           string
-	MaxConcurrentDownload uint
+	ClientID               string `json:"ClientID"`
+	ClientSecret           string `json:"ClientSecret"`
+	BackupLinksSecret      string `json:"BackupLinksSecret"`
+	DownloadDir            string `json:"DownloadDir"`
+	MaxConcurrentDownloads uint   `json:"MaxConcurrentDownloads"`
 }
 
 func (t *Kanna) loadConfiguration() error {
@@ -24,7 +23,7 @@ func (t *Kanna) loadConfiguration() error {
 
 	t.Config = &Config{}
 
-	if confBytes, err := ioutil.ReadFile(configFilePath); err == nil {
+	if confBytes, err := os.ReadFile(configFilePath); err == nil {
 		err = json.Unmarshal(confBytes, t.Config)
 		if err != nil {
 			return err
@@ -47,7 +46,7 @@ func (t *Kanna) saveConfiguration() error {
 	if err = os.MkdirAll(GetConfDir(), os.ModePerm); err != nil {
 		return err
 	}
-	return ioutil.WriteFile(configFilePath, confBytes, os.ModePerm)
+	return os.WriteFile(configFilePath, confBytes, os.ModePerm)
 }
 
 func (c *Config) sanitiseConfigurations() error {
@@ -57,6 +56,9 @@ func (c *Config) sanitiseConfigurations() error {
 			return err
 		}
 		c.DownloadDir = filepath.Join(downloadDir, "Downloads")
+	}
+	if c.MaxConcurrentDownloads <= 0 {
+		c.MaxConcurrentDownloads = 2
 	}
 	return nil
 }

@@ -1,7 +1,6 @@
 package core
 
 import (
-	"fmt"
 	"log"
 	"os"
 
@@ -39,9 +38,9 @@ func (t *Kanna) Initialise() error {
 	fafnirCfg := fafnir.Config{
 		ErrChan:                make(chan error, 100),
 		Repo:                   repo,
-		MaxConcurrentDownloads: t.Config.MaxConcurrentDownload,
+		MaxConcurrentDownloads: t.Config.MaxConcurrentDownloads,
 	}
-	err := fmt.Errorf("")
+	var err error
 	t.Fafnir, err = fafnir.New(&fafnirCfg)
 
 	if err != nil {

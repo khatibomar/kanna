@@ -6,6 +6,8 @@ codeberg.org/omarkhatib/kobayashi v0.0.0-20220227225537-548d1a3ffaf3 h1:01zO1zBV
 codeberg.org/omarkhatib/kobayashi v0.0.0-20220227225537-548d1a3ffaf3/go.mod h1:YnYgoT+HQhE46AvgIxjcS1cfry58jNmxXzK75l0/ZBE=
 codeberg.org/omarkhatib/tohru v0.0.0-20220818075020-bfe666220f6e h1:hEhuQO3w/nnlaFw0woLnEMyPz4xZIbBvcGwEPUZ9yTI=
 codeberg.org/omarkhatib/tohru v0.0.0-20220818075020-bfe666220f6e/go.mod h1:2wme8O2eaZd6ge0R+SdBR1PQXc9eGVnPHDaKIVLP2QA=
+codeberg.org/omarkhatib/tohru v0.0.0-20220819182454-d113f9f0d858 h1:3wSM049OHcfx4plotXCUeVnxlUfwxzo5CQajgQd0b/o=
+codeberg.org/omarkhatib/tohru v0.0.0-20220819182454-d113f9f0d858/go.mod h1:2wme8O2eaZd6ge0R+SdBR1PQXc9eGVnPHDaKIVLP2QA=
 github.com/RNCryptor/RNCryptor-go v0.1.0 h1:bYm8subCE2pnzdGnhx+tbUdox5KrFJl7tVrPj7/GCPE=
 github.com/RNCryptor/RNCryptor-go v0.1.0/go.mod h1:NUtjXlLdngbOXtzr166Ol6RYAUbaFnFKBhAhC+Hl+5s=
 github.com/cavaliercoder/grab v2.0.0+incompatible h1:wZHbBQx56+Yxjx2TCGDcenhh3cJn7cCLMfkEPmySTSE=
