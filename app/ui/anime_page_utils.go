@@ -19,6 +19,7 @@ func (p *AnimePage) saveEpisodes(episodes []*tohru.Episode, errChan chan error, 
 	}
 	errCount := 0
 	filePath := p.getDownloadPath(episodes[0], p.Core.Config.DownloadDir)
+	queueName := p.getAnimeNameWithYear(episodes[0])
 	for _, episode := range episodes {
 		url, err := getDwnLink(episode, p.Core.Client.EpisodeService.GetFirstDirectDownloadInfo)
 		if err != nil {
@@ -37,7 +38,7 @@ func (p *AnimePage) saveEpisodes(episodes []*tohru.Episode, errChan chan error, 
 			errChan <- fmt.Errorf("%s: %s", episode.EpisodeName, err)
 			continue
 		}
-		err = p.Core.Fafnir.Add(filePath, url.EpisodeDirectDownloadLink, filePath, fmt.Sprintf("%s.%s", removeRestrictedChars(episode.EpisodeName), "mp4"), url.EpisodeHostLink)
+		err = p.Core.Fafnir.Add(queueName, url.EpisodeDirectDownloadLink, filePath, fmt.Sprintf("%s.%s", removeRestrictedChars(episode.EpisodeName), "mp4"), url.EpisodeHostLink)
 		if err != nil {
 			errChan <- err
 		}
@@ -45,7 +46,7 @@ func (p *AnimePage) saveEpisodes(episodes []*tohru.Episode, errChan chan error, 
 	if errCount > 0 {
 		errChan <- fmt.Errorf("%d errors appeared please check logs", errCount)
 	}
-	err := p.Core.Fafnir.StartQueueDownload(filePath)
+	err := p.Core.Fafnir.StartQueueDownload(queueName)
 	if err != nil {
 		errChan <- err
 	}
@@ -102,6 +103,12 @@ func (p *AnimePage) getDownloadPath(episode *tohru.Episode, dwnDir string) strin
 	fullPath := path.Join(dwnDir, animeName+"_"+animeYear) + "/"
 
 	return fullPath
+}
+
+func (p *AnimePage) getAnimeNameWithYear(episode *tohru.Episode) string {
+	animeName := removeRestrictedChars(p.Anime.AnimeName)
+	animeYear := p.Anime.AnimeReleaseYear
+	return animeName + "_" + animeYear
 }
 
 func removeRestrictedChars(s string) string {
