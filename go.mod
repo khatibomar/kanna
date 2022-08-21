@@ -3,7 +3,7 @@ module codeberg.org/omarkhatib/kanna
 go 1.17
 
 require (
-	codeberg.org/omarkhatib/fafnir v0.0.0-20220819161307-5481b0753a56
+	codeberg.org/omarkhatib/fafnir v0.0.0-20220821132748-1c0e0216e634
 	codeberg.org/omarkhatib/tohru v0.0.0-20220819182454-d113f9f0d858
 	github.com/gdamore/tcell/v2 v2.4.1-0.20210905002822-f057f0a857a1
 	github.com/rivo/tview v0.0.0-20220216162559-96063d6082f3

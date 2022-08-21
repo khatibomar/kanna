@@ -2,6 +2,14 @@ codeberg.org/omarkhatib/fafnir v0.0.0-20220818071231-a1ada17bc776 h1:Z3AJZ40PMgU
 codeberg.org/omarkhatib/fafnir v0.0.0-20220818071231-a1ada17bc776/go.mod h1:aCDo2kOsz6jD1NWnjbAlrjrcUxyy9NiKDyItrFM2ybk=
 codeberg.org/omarkhatib/fafnir v0.0.0-20220819161307-5481b0753a56 h1:j/3lVXOGBmF+qBrk7SLR3v0fWWd0udRtaTveKZa4nys=
 codeberg.org/omarkhatib/fafnir v0.0.0-20220819161307-5481b0753a56/go.mod h1:aCDo2kOsz6jD1NWnjbAlrjrcUxyy9NiKDyItrFM2ybk=
+codeberg.org/omarkhatib/fafnir v0.0.0-20220821131558-06262a56e581 h1:LXZlHvn8eMDpM5icl2Vf8PIjTcZgUsKr9BS6y/8USKA=
+codeberg.org/omarkhatib/fafnir v0.0.0-20220821131558-06262a56e581/go.mod h1:aCDo2kOsz6jD1NWnjbAlrjrcUxyy9NiKDyItrFM2ybk=
+codeberg.org/omarkhatib/fafnir v0.0.0-20220821132035-fcc274b44e1d h1:LcrZJ7uwP6cc9HLTMvl2XNEgW3zgxd+rZEZcccD8aTU=
+codeberg.org/omarkhatib/fafnir v0.0.0-20220821132035-fcc274b44e1d/go.mod h1:aCDo2kOsz6jD1NWnjbAlrjrcUxyy9NiKDyItrFM2ybk=
+codeberg.org/omarkhatib/fafnir v0.0.0-20220821132526-288d0b300df9 h1:Ntn2sj8h3C+RaMTFiXrm3T7xQ/dFIRTZlHsPA35qb5E=
+codeberg.org/omarkhatib/fafnir v0.0.0-20220821132526-288d0b300df9/go.mod h1:aCDo2kOsz6jD1NWnjbAlrjrcUxyy9NiKDyItrFM2ybk=
+codeberg.org/omarkhatib/fafnir v0.0.0-20220821132748-1c0e0216e634 h1:YRRTqPz3/SUhA0GQwIoQD3VyTVloVGtw9sVhk1e7g/I=
+codeberg.org/omarkhatib/fafnir v0.0.0-20220821132748-1c0e0216e634/go.mod h1:aCDo2kOsz6jD1NWnjbAlrjrcUxyy9NiKDyItrFM2ybk=
 codeberg.org/omarkhatib/kobayashi v0.0.0-20220227225537-548d1a3ffaf3 h1:01zO1zBVf2ZsJ543YpfYwqBtvx21V/MSAh0VW0FLkTE=
 codeberg.org/omarkhatib/kobayashi v0.0.0-20220227225537-548d1a3ffaf3/go.mod h1:YnYgoT+HQhE46AvgIxjcS1cfry58jNmxXzK75l0/ZBE=
 codeberg.org/omarkhatib/tohru v0.0.0-20220818075020-bfe666220f6e h1:hEhuQO3w/nnlaFw0woLnEMyPz4xZIbBvcGwEPUZ9yTI=

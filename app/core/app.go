@@ -33,14 +33,18 @@ func (t *Kanna) Initialise() error {
 		return err
 	}
 
-	repo := repository.NewInMemoryRepo()
+	repo, err := repository.NewSQLite3Repo("downloads", GetConfDir())
+	if err != nil {
+		log.Println(err)
+		return err
+	}
 
 	fafnirCfg := fafnir.Config{
 		ErrChan:                make(chan error, 100),
 		Repo:                   repo,
 		MaxConcurrentDownloads: t.Config.MaxConcurrentDownloads,
 	}
-	var err error
+
 	t.Fafnir, err = fafnir.New(&fafnirCfg)
 
 	if err != nil {
