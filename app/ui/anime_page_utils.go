@@ -23,9 +23,7 @@ func (p *AnimePage) saveEpisodes(episodes []*tohru.Episode, errChan chan error, 
 	for _, episode := range episodes {
 		url, err := getDwnLink(episode, p.Core.Client.EpisodeService.GetFirstDirectDownloadInfo)
 		if err != nil {
-			if len(episodes) <= 5 {
-				errChan <- fmt.Errorf("%s: %s", episode.EpisodeName, err)
-			}
+			errChan <- fmt.Errorf("%s: %s", episode.EpisodeName, err)
 			errCount++
 			continue
 		}
