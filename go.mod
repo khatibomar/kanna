@@ -5,7 +5,7 @@ go 1.22
 require (
 	github.com/gdamore/tcell/v2 v2.4.1-0.20210905002822-f057f0a857a1
 	github.com/khatibomar/fafnir v0.0.0-20240512040937-a8cdd19b15fa
-	github.com/khatibomar/tohru v0.0.0-20240512055257-c5f61870523a
+	github.com/khatibomar/tohru v0.0.0-20240512064109-2b7f80ca3361
 	github.com/rivo/tview v0.0.0-20220216162559-96063d6082f3
 )
 

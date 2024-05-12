@@ -10,8 +10,8 @@ github.com/khatibomar/fafnir v0.0.0-20240512040937-a8cdd19b15fa h1:CSP7lalKBOqFW
 github.com/khatibomar/fafnir v0.0.0-20240512040937-a8cdd19b15fa/go.mod h1:42WuURSlGLjPht+FM2AtRW07wnsyGG60Tqx+X6h6hYc=
 github.com/khatibomar/kobayashi v0.0.0-20240512032625-dd8e65a859d4 h1:knd6IsOB10ebSsr89LWFbg478nbPrnVZXeb8/Ew5LAE=
 github.com/khatibomar/kobayashi v0.0.0-20240512032625-dd8e65a859d4/go.mod h1:ZrDRYxHXJa1GyLi08QighcWQutSJWkgJrUBRmUTt5Ig=
-github.com/khatibomar/tohru v0.0.0-20240512055257-c5f61870523a h1:5E6lQsqKDSWw3gScoPRUemmstAHlRI8eJva4VK2i4X8=
-github.com/khatibomar/tohru v0.0.0-20240512055257-c5f61870523a/go.mod h1:pTUcKosjVE9accl1/opqdsQWdh1bKLCcmD0PaqAGNGs=
+github.com/khatibomar/tohru v0.0.0-20240512064109-2b7f80ca3361 h1:ucKBBIhmaaikr3RWuQO2vWZ0ydlChWB7znELWqszVuY=
+github.com/khatibomar/tohru v0.0.0-20240512064109-2b7f80ca3361/go.mod h1:pTUcKosjVE9accl1/opqdsQWdh1bKLCcmD0PaqAGNGs=
 github.com/lucasb-eyer/go-colorful v1.2.0 h1:1nnpGOrhyZZuNyfu1QjKiUICQ74+3FNCN69Aj6K7nkY=
 github.com/lucasb-eyer/go-colorful v1.2.0/go.mod h1:R4dSotOR9KMtayYi1e77YzuveK+i7ruzyGqttikkLy0=
 github.com/mattn/go-runewidth v0.0.13 h1:lTGmDsbAYt5DmK6OnoV7EuIF1wEIFAcxld6ypU4OSgU=
