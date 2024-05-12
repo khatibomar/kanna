@@ -13,13 +13,13 @@ import (
 	"github.com/khatibomar/tohru"
 )
 
-func (p *AnimePage) saveEpisodes(episodes []*tohru.Episode, errChan chan error, infoChan chan string) {
+func (p *AnimePage) saveEpisodes(episodes []*tohru.Episode, errChan chan error) {
 	if len(episodes) == 0 {
 		return
 	}
 	errCount := 0
-	filePath := p.getDownloadPath(episodes[0], p.Core.Config.DownloadDir)
-	queueName := p.getAnimeNameWithYear(episodes[0])
+	filePath := p.getDownloadPath(p.Core.Config.DownloadDir)
+	queueName := p.getAnimeNameWithYear()
 	for _, episode := range episodes {
 		url, err := getDwnLink(episode, p.Core.Client.EpisodeService.GetFirstDirectDownloadInfo)
 		if err != nil {
@@ -93,7 +93,7 @@ func getDwnLink(episode *tohru.Episode, getFirstDwnLinkF func(string, int) (tohr
 }
 
 // getDownloadFolder : Get the download folder for an episode.
-func (p *AnimePage) getDownloadPath(episode *tohru.Episode, dwnDir string) string {
+func (p *AnimePage) getDownloadPath(dwnDir string) string {
 	animeName := removeRestrictedChars(p.Anime.AnimeName)
 	animeYear := p.Anime.AnimeReleaseYear
 
@@ -103,7 +103,7 @@ func (p *AnimePage) getDownloadPath(episode *tohru.Episode, dwnDir string) strin
 	return fullPath
 }
 
-func (p *AnimePage) getAnimeNameWithYear(episode *tohru.Episode) string {
+func (p *AnimePage) getAnimeNameWithYear() string {
 	animeName := removeRestrictedChars(p.Anime.AnimeName)
 	animeYear := p.Anime.AnimeReleaseYear
 	return animeName + "_" + animeYear

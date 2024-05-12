@@ -137,10 +137,10 @@ func (p *AnimePage) setHandlers(cancel context.CancelFunc) {
 
 		selected := p.sWrap.CopySelection()
 		if len(selected) > 1 {
-			modal := confirmDownloadModal(p.Core, selected, p.download, errChan, infoChan)
+			modal := confirmDownloadModal(p.Core, selected, p.download, errChan)
 			ShowModal(p.Core, utils.DownloadModalID, modal)
 		} else {
-			modal := watchOrDownloadModal(p.Core, utils.WatchOrDownloadModalID, "Select Option", selected, p.stream, p.download, errChan, infoChan)
+			modal := watchOrDownloadModal(p.Core, utils.WatchOrDownloadModalID, "Select Option", selected, p.stream, p.download, errChan)
 			ShowModal(p.Core, utils.WatchOrDownloadModalID, modal)
 		}
 
@@ -237,7 +237,7 @@ func GetMD5Hash(text string) string {
 	return hex.EncodeToString(hasher.Sum(nil))
 }
 
-func (p *AnimePage) stream(selected map[int]struct{}, errChan chan error, infoChan chan string) {
+func (p *AnimePage) stream(selected map[int]struct{}, errChan chan error) {
 	var selection EpisodeSelection
 	var ok bool
 	for index := range selected {
@@ -260,8 +260,8 @@ func (p *AnimePage) stream(selected map[int]struct{}, errChan chan error, infoCh
 	ShowModal(p.Core, utils.InfoModalID, modal)
 }
 
-func (p *AnimePage) download(selected map[int]struct{}, errChan chan error, infoChan chan string) {
-	go func(m map[int]struct{}, c1 chan error, c2 chan string) {
+func (p *AnimePage) download(selected map[int]struct{}, errChan chan error) {
+	go func(m map[int]struct{}, errChan chan error) {
 		var selection EpisodeSelection
 		var ok bool
 		var episodes []*tohru.Episode
@@ -280,8 +280,8 @@ func (p *AnimePage) download(selected map[int]struct{}, errChan chan error, info
 			}
 			episodes = append(episodes, &episode)
 		}
-		go p.saveEpisodes(episodes, errChan, infoChan)
-	}(selected, errChan, infoChan)
+		go p.saveEpisodes(episodes, errChan)
+	}(selected, errChan)
 	info := fmt.Sprintf("Download Starting... \nyou can find file in %s\nif error happened it will be reported", p.Core.Config.DownloadDir)
 	modal := okModal(p.Core, utils.InfoModalID, info)
 	ShowModal(p.Core, utils.InfoModalID, modal)

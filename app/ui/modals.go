@@ -8,7 +8,7 @@ import (
 	"github.com/rivo/tview"
 )
 
-type actionFunc func(map[int]struct{}, chan error, chan string)
+type actionFunc func(map[int]struct{}, chan error)
 
 // ShowModal : Make the app show a modal.
 func ShowModal(core *core.Kanna, id string, modal *tview.Modal) {
@@ -31,7 +31,7 @@ func okModal(core *core.Kanna, id, text string) *tview.Modal {
 	return modal
 }
 
-func confirmDownloadModal(core *core.Kanna, selected map[int]struct{}, f actionFunc, errChan chan error, infoChan chan string) *tview.Modal {
+func confirmDownloadModal(core *core.Kanna, selected map[int]struct{}, f actionFunc, errChan chan error) *tview.Modal {
 	// Create new modal
 	modal := tview.NewModal()
 
@@ -42,7 +42,7 @@ func confirmDownloadModal(core *core.Kanna, selected map[int]struct{}, f actionF
 		SetFocus(0).
 		SetDoneFunc(func(buttonIndex int, _ string) {
 			if buttonIndex == 0 {
-				f(selected, errChan, infoChan)
+				f(selected, errChan)
 			}
 			log.Printf("Removing %s modal\n", utils.DownloadModalID)
 			core.PageHolder.RemovePage(utils.DownloadModalID)
@@ -54,7 +54,7 @@ func confirmDownloadModal(core *core.Kanna, selected map[int]struct{}, f actionF
 // The user specifies the function to do when confirming.
 // If the user cancels, then the modal is removed from the view.
 
-func watchOrDownloadModal(core *core.Kanna, id, text string, selected map[int]struct{}, stream actionFunc, download actionFunc, errChan chan error, infoChan chan string) *tview.Modal {
+func watchOrDownloadModal(core *core.Kanna, id, text string, selected map[int]struct{}, stream actionFunc, download actionFunc, errChan chan error) *tview.Modal {
 	// Create new modal
 	modal := tview.NewModal()
 
@@ -65,9 +65,9 @@ func watchOrDownloadModal(core *core.Kanna, id, text string, selected map[int]st
 		SetFocus(0).
 		SetDoneFunc(func(buttonIndex int, _ string) {
 			if buttonIndex == 0 {
-				stream(selected, errChan, infoChan)
+				stream(selected, errChan)
 			} else if buttonIndex == 1 {
-				download(selected, errChan, infoChan)
+				download(selected, errChan)
 			}
 			log.Printf("Removing %s modal\n", id)
 			core.PageHolder.RemovePage(id)
