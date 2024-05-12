@@ -3,9 +3,9 @@ package service
 import (
 	"log"
 
-	"codeberg.org/omarkhatib/kanna/app/core"
-	"codeberg.org/omarkhatib/kanna/app/ui"
-	"codeberg.org/omarkhatib/tohru"
+	"github.com/khatibomar/kanna/app/core"
+	"github.com/khatibomar/kanna/app/ui"
+	"github.com/khatibomar/tohru"
 	"github.com/rivo/tview"
 )
 

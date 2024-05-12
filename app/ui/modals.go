@@ -3,8 +3,8 @@ package ui
 import (
 	"log"
 
-	"codeberg.org/omarkhatib/kanna/app/core"
-	"codeberg.org/omarkhatib/kanna/app/ui/utils"
+	"github.com/khatibomar/kanna/app/core"
+	"github.com/khatibomar/kanna/app/ui/utils"
 	"github.com/rivo/tview"
 )
 

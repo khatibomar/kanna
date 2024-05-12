@@ -10,7 +10,7 @@ import (
 	"strconv"
 	"strings"
 
-	"codeberg.org/omarkhatib/tohru"
+	"github.com/khatibomar/tohru"
 )
 
 func (p *AnimePage) saveEpisodes(episodes []*tohru.Episode, errChan chan error, infoChan chan string) {

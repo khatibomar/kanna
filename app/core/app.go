@@ -4,9 +4,9 @@ import (
 	"log"
 	"os"
 
-	"codeberg.org/omarkhatib/fafnir"
-	"codeberg.org/omarkhatib/fafnir/repository"
-	"codeberg.org/omarkhatib/tohru"
+	"github.com/khatibomar/fafnir"
+	"github.com/khatibomar/fafnir/repository"
+	"github.com/khatibomar/tohru"
 	"github.com/rivo/tview"
 )
 
